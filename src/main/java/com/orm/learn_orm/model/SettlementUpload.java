@@ -1,6 +1,7 @@
 package com.orm.learn_orm.model;
 
 
+import com.orm.learn_orm.enums.SettlementType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,8 +20,9 @@ public class SettlementUpload {
     private Long uploadId;
     @Column(name="file_name", nullable = false)
     private String fileName;
-    @Column(name="file_type", nullable = false)
-    private String fileType;
+    @Enumerated(EnumType.STRING)
+    @Column(name="settlement_type", nullable = false)
+    private SettlementType settlementType;
     @Column(name="file_size", nullable = false)
     private String fileSize;
     @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)

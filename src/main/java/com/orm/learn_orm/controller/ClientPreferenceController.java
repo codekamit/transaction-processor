@@ -22,17 +22,17 @@ public class ClientPreferenceController {
      * CREATE a new client preference.
      * POST /api/client-preference
      */
-    @PostMapping
-    public ResponseEntity<ClientPreferenceDTO> createPreference(@RequestBody ClientPreferenceDTO dto) {
-        ClientPreferenceDTO created = service.createPreference(dto);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+    @PostMapping("add")
+    public ResponseEntity<String> createPreference(@RequestBody ClientPreferenceDTO dto) {
+        service.createPreference(dto);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.CREATED);
     }
 
     /**
      * READ a client preference by its business key (clientName and currency).
      * GET /api/client-preference?clientName=SomeClient&currency=USD
      */
-    @GetMapping
+    @GetMapping("get-by-business-key")
     public ResponseEntity<ClientPreferenceDTO> getPreferenceByBusinessKey(
             @RequestParam String clientName,
             @RequestParam Currency currency) {
@@ -43,7 +43,7 @@ public class ClientPreferenceController {
      * READ all client preferences.
      * GET /api/client-preference/all
      */
-    @GetMapping("/all")
+    @GetMapping("get-all")
     public ResponseEntity<List<ClientPreferenceDTO>> getAllPreferences() {
         return ResponseEntity.ok(service.getAllPreferences());
     }
@@ -52,18 +52,19 @@ public class ClientPreferenceController {
      * UPDATE an existing client preference by its surrogate ID.
      * PUT /api/client-preference/123
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<ClientPreferenceDTO> updatePreference(
+    @PutMapping("update/{id}")
+    public ResponseEntity<String> updatePreference(
             @PathVariable Long id,
             @RequestBody ClientPreferenceDTO dto) {
-        return ResponseEntity.ok(service.updatePreference(id, dto));
+        service.updatePreference(id, dto);
+        return ResponseEntity.ok("Updated Successfully");
     }
 
     /**
      * DELETE a client preference by its surrogate ID.
      * DELETE /api/client-preference/123
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deletePreference(@PathVariable Long id) {
         service.deletePreference(id);
         return ResponseEntity.noContent().build();

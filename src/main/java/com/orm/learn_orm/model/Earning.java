@@ -23,4 +23,6 @@ public class Earning {
     private String fund;
     @Column(name="amount", nullable = false)
     private Double amount;
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    private SettlementUpload settlementUpload;
 }
