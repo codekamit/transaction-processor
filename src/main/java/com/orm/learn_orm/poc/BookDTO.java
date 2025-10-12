@@ -1,4 +1,4 @@
-package com.orm.learn_orm.dto;
+package com.orm.learn_orm.poc;
 
 
 import jakarta.validation.constraints.NotBlank;

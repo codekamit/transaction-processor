@@ -85,7 +85,7 @@ public class DataSourceConfig {
         if (!StringUtils.isBlank(defaultSchema)) {
             properties.setProperty("hibernate.default_schema", defaultSchema);
         }
-        properties.setProperty("hibernate.jdbc.batch_size", "1000");
+        properties.setProperty("hibernate.jdbc.batch_size", "5000");
         properties.setProperty("hibernate.order_inserts", "true");
         properties.setProperty("hibernate.order_updates", "true");
         properties.setProperty("hibernate.generate_statistics", "true");

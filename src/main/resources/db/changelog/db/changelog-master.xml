@@ -5,7 +5,19 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <changeSet id="sequence_001" author="Amit Kumar">
-        <sqlFile path="../sql/initial.sql" relativeToChangelogFile="true" />
+        <sqlFile path="../sql/initial_setup.sql" relativeToChangelogFile="true" />
+    </changeSet>
+
+    <changeSet id="sequence_002" author="Amit Kumar">
+        <sqlFile path="../sql/REF_001.sql" relativeToChangelogFile="true" />
+    </changeSet>
+
+    <changeSet id="sequence_003" author="Amit Kumar">
+        <sqlFile path="../sql/REF_002.sql" relativeToChangelogFile="true" />
+    </changeSet>
+
+    <changeSet id="sequence_004" author="Amit Kumar">
+        <sqlFile path="../sql/REF_003.sql" relativeToChangelogFile="true" />
     </changeSet>
 
 </databaseChangeLog>

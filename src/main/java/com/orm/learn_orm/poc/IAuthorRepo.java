@@ -1,7 +1,6 @@
-package com.orm.learn_orm.repo;
+package com.orm.learn_orm.poc;
 
 
-import com.orm.learn_orm.model.Author;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
