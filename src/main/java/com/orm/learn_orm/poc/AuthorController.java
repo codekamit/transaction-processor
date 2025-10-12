@@ -1,8 +1,6 @@
-package com.orm.learn_orm.controller;
+package com.orm.learn_orm.poc;
 
 
-import com.orm.learn_orm.dto.AuthorDTO;
-import com.orm.learn_orm.service.AuthorService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;

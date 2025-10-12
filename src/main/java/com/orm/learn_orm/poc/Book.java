@@ -1,4 +1,4 @@
-package com.orm.learn_orm.model;
+package com.orm.learn_orm.poc;
 
 
 import jakarta.persistence.*;

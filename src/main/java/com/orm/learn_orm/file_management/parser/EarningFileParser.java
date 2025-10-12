@@ -66,9 +66,14 @@ public class EarningFileParser implements IFileParser<EarningDTO> {
             processField(row, headerMap, earningFileHeaders.FUND(), errorMap, earningDTO::setFund);
             processNumericField(row, headerMap, earningFileHeaders.AMOUNT(), errorMap, earningDTO::setAmount);
 
-            earningDTO.isValid(errorMap);
-            errorDetails.add(errorMap);
-            earningDTOs.add(earningDTO);
+            if(earningDTO.isValid(errorMap)) {
+                earningDTOs.add(earningDTO);
+            }
+
+            if(!errorMap.isEmpty()) {
+                errorDetails.add(errorMap);
+            }
+
             idx++;
         }
 

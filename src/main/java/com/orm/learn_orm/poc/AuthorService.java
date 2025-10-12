@@ -1,10 +1,5 @@
-package com.orm.learn_orm.service;
+package com.orm.learn_orm.poc;
 
-import com.orm.learn_orm.dto.AuthorDTO;
-import com.orm.learn_orm.mapper.IAuthorMapper;
-import com.orm.learn_orm.model.Author;
-import com.orm.learn_orm.model.Book;
-import com.orm.learn_orm.repo.IAuthorRepo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

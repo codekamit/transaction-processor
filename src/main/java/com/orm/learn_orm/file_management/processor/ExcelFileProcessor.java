@@ -3,6 +3,7 @@ package com.orm.learn_orm.file_management.processor;
 
 import com.orm.learn_orm.file_management.header.IFileHeader;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.eval.NotImplementedException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,9 +89,19 @@ public class ExcelFileProcessor implements IFileProcessor {
     }
 
     public static Cell evaluateFormulaCell(Cell cell) {
+        if (cell == null) {
+            return null;
+        }
+
         Workbook workbook = cell.getSheet().getWorkbook();
         FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        return evaluator.evaluateInCell(cell);
+        try {
+            return evaluator.evaluateInCell(cell);
+        } catch (NotImplementedException ex) {
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue("");
+            return cell;
+        }
     }
 }
 
