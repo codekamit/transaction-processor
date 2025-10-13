@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Map;
+
 
 @Getter
 @Setter
@@ -13,6 +15,5 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FundGroupDTO {
-    private String fund;
-    private String paymentFund;
+    Map<String, String> fundMap;
 }

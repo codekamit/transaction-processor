@@ -1,8 +1,15 @@
 package com.orm.learn_orm.model;
 
 
+import com.orm.learn_orm.config.UuidV7Generator;
+import com.orm.learn_orm.enums.Currency;
+import com.orm.learn_orm.marker_interface.ISettlement;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -11,13 +18,16 @@ import lombok.*;
 @NoArgsConstructor
 @Entity
 @Table(name="earning", schema="orm")
-public class Earning {
+public class Earning implements ISettlement {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "earning_seq")
-    @SequenceGenerator(name = "earning_seq", sequenceName = "earning_sequence", allocationSize = 5000)
-    private Long id;
+    @GeneratedValue(generator = "uuidv7-generator")
+    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
+    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
+    @Enumerated(EnumType.STRING)
     @Column(name="currency", nullable = false)
-    private String currency;
+    private Currency currency;
     @Column(name="client_name", nullable = false)
     private String clientName;
     @Column(name="fund", nullable = false)

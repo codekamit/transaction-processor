@@ -28,6 +28,13 @@ public class ClientPreferenceController {
         return new ResponseEntity<>("Created Successfully", HttpStatus.CREATED);
     }
 
+
+    @PostMapping("add-all")
+    public ResponseEntity<String> createPreferences(@RequestBody List<ClientPreferenceDTO> dtos) {
+        service.createPreferences(dtos);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.CREATED);
+    }
+
     /**
      * READ a client preference by its business key (clientName and currency).
      * GET /api/client-preference?clientName=SomeClient&currency=USD

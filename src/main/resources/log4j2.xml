@@ -16,9 +16,6 @@
         <Logger name="logging.level.org.springframework.jdbc.core" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="logging.level.org.apache.poi.ss.formula.FormulaParser" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
 
         <Root level="info">
             <AppenderRef ref="Console"/>

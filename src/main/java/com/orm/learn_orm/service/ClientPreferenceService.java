@@ -1,7 +1,9 @@
 package com.orm.learn_orm.service;
 
 import com.orm.learn_orm.dto.ClientPreferenceDTO;
+import com.orm.learn_orm.dto.FundGroupDTO;
 import com.orm.learn_orm.enums.Currency;
+import com.orm.learn_orm.enums.Status;
 import com.orm.learn_orm.mapper.IClientPrefMapper;
 import com.orm.learn_orm.model.ClientPreference;
 import com.orm.learn_orm.model.FundGroup;
@@ -23,17 +25,29 @@ public class ClientPreferenceService {
     @Transactional(transactionManager = "ormTransactionManager")
     public void createPreference(ClientPreferenceDTO dto) {
         ClientPreference clientPreference = CLIENT_PREF_MAPPER.getClientPreference(dto);
-        List<FundGroup> fundGroups = dto.getFundMapping().stream()
-                .map(CLIENT_PREF_MAPPER::getFundGroup)
-                .peek(fundGroup -> fundGroup.setClientPreference(clientPreference))
-                .toList();
+        List<FundGroup> fundGroups = CLIENT_PREF_MAPPER.mapFundGroup(dto.getFundGroup(), clientPreference);
         clientPreference.setFundMapping(fundGroups);
+        clientPreference.setStatus(Status.ACTIVE);
         clientPreferenceRepo.save(clientPreference);
+    }
+
+    @Transactional(transactionManager = "ormTransactionManager")
+    public void createPreferences(List<ClientPreferenceDTO> dtos) {
+        List<ClientPreference> clientPreferences = dtos.stream()
+                .map(dto -> {
+                    ClientPreference clientPreference = CLIENT_PREF_MAPPER.getClientPreference(dto);
+                    List<FundGroup> fundGroups = CLIENT_PREF_MAPPER.mapFundGroup(dto.getFundGroup(), clientPreference);
+                    clientPreference.setFundMapping(fundGroups);
+                    clientPreference.setStatus(Status.ACTIVE);
+                    return clientPreference;
+                }).toList();
+
+        clientPreferenceRepo.saveAll(clientPreferences);
     }
 
     @Transactional(readOnly = true, transactionManager = "ormTransactionManager")
     public ClientPreferenceDTO getPreferenceByBusinessKey(String clientName, Currency currency) {
-        ClientPreference clientPreference = clientPreferenceRepo.findByClientNameAndCurrency(clientName,currency)
+        ClientPreference clientPreference = clientPreferenceRepo.findByClientNameAndCurrency(clientName, currency)
                 .orElseThrow(() -> new RuntimeException("ClientPreference not found"));
         return CLIENT_PREF_MAPPER.getClientPreferenceDTO(clientPreference);
     }
@@ -42,8 +56,12 @@ public class ClientPreferenceService {
     public List<ClientPreferenceDTO> getAllPreferences() {
         List<ClientPreference> clientPreferences = clientPreferenceRepo.findAllPrefWithMapping();
         return clientPreferences.stream()
-                .map(CLIENT_PREF_MAPPER::getClientPreferenceDTO)
-                .toList();
+                .map(clientPref -> {
+                    ClientPreferenceDTO clientPreferenceDTO = CLIENT_PREF_MAPPER.getClientPreferenceDTO(clientPref);
+                    FundGroupDTO fundGroupDTO = CLIENT_PREF_MAPPER.mapFundGroupDTO(clientPref);
+                    clientPreferenceDTO.setFundGroup(fundGroupDTO);
+                    return clientPreferenceDTO;
+                }).toList();
     }
 
     @Transactional(transactionManager = "ormTransactionManager")

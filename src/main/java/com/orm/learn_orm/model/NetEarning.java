@@ -1,11 +1,14 @@
 package com.orm.learn_orm.model;
 
+import com.orm.learn_orm.config.UuidV7Generator;
 import com.orm.learn_orm.enums.SettlementLevel;
 import com.orm.learn_orm.enums.SettlementType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,9 +20,10 @@ import java.util.List;
 public class NetEarning {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "net_earning_seq")
-    @SequenceGenerator(name = "net_earning_seq", sequenceName = "net_earning_sequence", allocationSize = 1000)
-    private Long id;
+    @GeneratedValue(generator = "uuidv7-generator")
+    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
+    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
     @Column(name="amount", nullable = false)
     private Double amount;
     @Column(name="client_name", nullable = false)

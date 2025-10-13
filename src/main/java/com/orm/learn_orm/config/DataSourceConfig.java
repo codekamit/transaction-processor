@@ -21,7 +21,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = {"com.orm.learn_orm.repo"},
+        basePackages = {"com.orm.learn_orm.repo", "com.orm.learn_orm.poc"},
         entityManagerFactoryRef = "ormEntityManagerFactory",
         transactionManagerRef = "ormTransactionManager"
 )
@@ -71,7 +71,7 @@ public class DataSourceConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
-        emf.setPackagesToScan("com.orm.learn_orm.model");
+        emf.setPackagesToScan("com.orm.learn_orm.model", "com.orm.learn_orm.poc");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         emf.setJpaVendorAdapter(vendorAdapter);
