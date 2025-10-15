@@ -5,15 +5,18 @@ import com.orm.learn_orm.config.UuidV7Generator;
 import com.orm.learn_orm.enums.SettlementType;
 import com.orm.learn_orm.enums.UploadStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -43,4 +46,20 @@ public class SettlementUpload {
     @Enumerated(EnumType.STRING)
     @Column(name="upload_status", nullable = false)
     private UploadStatus uploadStatus;
+
+    public void addNetEarning(NetEarning netEarning) {
+        if(this.netEarnings == null) {
+            this.netEarnings = new ArrayList<>();
+        }
+        this.netEarnings.add(netEarning);
+        netEarning.setSettlementUpload(this);
+    }
+
+    public void addEarning(Earning earning) {
+        if(this.earnings == null) {
+            this.earnings = new ArrayList<>();
+        }
+        this.earnings.add(earning);
+        earning.setSettlementUpload(this);
+    }
 }

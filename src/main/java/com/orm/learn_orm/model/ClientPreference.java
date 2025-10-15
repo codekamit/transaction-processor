@@ -7,17 +7,17 @@ import com.orm.learn_orm.enums.Currency;
 import com.orm.learn_orm.enums.SettlementLevel;
 import com.orm.learn_orm.enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -45,11 +45,25 @@ public class ClientPreference {
     @Column(name="netting", nullable = false)
     private boolean netting;
 
-    @OneToMany(mappedBy = "clientPreference", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "clientPreference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FundGroup> fundMapping;
 
     @Column(name="status", nullable = false)
     private Status status;
+
+    @PrePersist
+    @PreUpdate
+    public void convertToUpperCase() {
+        if (this.clientName != null) {
+            this.clientName = this.clientName.toUpperCase();
+        }
+    }
+
+    public void delinkFundGroupMapping() {
+        if (this.fundMapping != null) {
+            this.fundMapping.clear();
+        }
+    }
 
     public ClientPrefKey getKey() {
         return new ClientPrefKey(this.clientName, this.currency);
@@ -57,7 +71,7 @@ public class ClientPreference {
 
     public static List<String> getFormattedKeys(List <ClientPrefKey> keys) {
         return keys.stream()
-                .map(key -> String.format("('%s','%s')", key.clientName(), key.currency().name()))
+                .map(key -> String.format("%s:%s", key.clientName().toUpperCase(), key.currency().name()))
                 .toList();
     }
 }

@@ -30,4 +30,15 @@ public class FundGroup {
 
     @Column(name="payment_fund", nullable = false)
     private String paymentFund;
+
+    @PrePersist
+    @PreUpdate
+    public void convertToUpperCase() {
+        if (this.fund != null) {
+            this.fund = this.fund.toUpperCase();
+        }
+        if (this.paymentFund != null) {
+            this.paymentFund = this.paymentFund.toUpperCase();
+        }
+    }
 }

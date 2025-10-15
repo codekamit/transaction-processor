@@ -11,4 +11,8 @@ public interface IEarningRepo extends JpaRepository<Earning, Long> {
 
     @Query("SELECT DISTINCT e FROM Earning e JOIN FETCH e.settlementUpload WHERE e.settlementUpload = :settlementUpload")
     List<Earning> findAllEarningsWithSettlementUpload(SettlementUpload settlementUpload);
+
+
+    @Query("SELECT DISTINCT e FROM Earning e JOIN FETCH e.settlementUpload WHERE e.netEarning IS NULL")
+    List<Earning> findAllOrphanedEarnings();
 }

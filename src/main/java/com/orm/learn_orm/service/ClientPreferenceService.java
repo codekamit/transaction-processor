@@ -1,5 +1,6 @@
 package com.orm.learn_orm.service;
 
+import com.orm.learn_orm.dto.ClientPrefKey;
 import com.orm.learn_orm.dto.ClientPreferenceDTO;
 import com.orm.learn_orm.dto.FundGroupDTO;
 import com.orm.learn_orm.enums.Currency;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -50,6 +52,31 @@ public class ClientPreferenceService {
         ClientPreference clientPreference = clientPreferenceRepo.findByClientNameAndCurrency(clientName, currency)
                 .orElseThrow(() -> new RuntimeException("ClientPreference not found"));
         return CLIENT_PREF_MAPPER.getClientPreferenceDTO(clientPreference);
+    }
+
+    @Transactional(readOnly = true, transactionManager = "ormTransactionManager")
+    public List<ClientPreferenceDTO> getPreferencesByKeys(List<ClientPrefKey> keys) {
+        List<ClientPreference> clientPreferences = clientPreferenceRepo
+                .findPrefWithFundMappingForClientKeys(ClientPreference.getFormattedKeys(keys));
+        return clientPreferences.stream()
+                .map(clientPreference -> {
+                    ClientPreferenceDTO clientPreferenceDTO = CLIENT_PREF_MAPPER.getClientPreferenceDTO(clientPreference);
+                    FundGroupDTO fundGroupDTO = CLIENT_PREF_MAPPER.mapFundGroupDTO(clientPreference);
+                    clientPreferenceDTO.setFundGroup(fundGroupDTO);
+                    return clientPreferenceDTO;
+                }).toList();
+    }
+
+    @Transactional(transactionManager = "ormTransactionManager")
+    public void updateClientPreference(ClientPreferenceDTO dto) {
+        ClientPreference clientPreference = clientPreferenceRepo.findByClientNameAndCurrency(dto.getClientName(), dto.getCurrency())
+                .orElseThrow(() -> new RuntimeException("ClientPreference not found"));
+        CLIENT_PREF_MAPPER.updateClientPreference(dto, clientPreference);
+
+        List<FundGroup> newFundGroups = CLIENT_PREF_MAPPER.mapFundGroup(dto.getFundGroup(), clientPreference);
+        clientPreference.getFundMapping().clear();
+        clientPreference.getFundMapping().addAll(newFundGroups == null ? new ArrayList<FundGroup>() : newFundGroups );
+        clientPreferenceRepo.save(clientPreference);
     }
 
     @Transactional(readOnly = true, transactionManager = "ormTransactionManager")

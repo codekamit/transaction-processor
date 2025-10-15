@@ -1,4 +1,4 @@
-package com.orm.learn_orm.settlement_processor;
+package com.orm.learn_orm.settlement_processor.preprocessor;
 
 import com.orm.learn_orm.dto.EarningDTO;
 import com.orm.learn_orm.enums.SettlementType;
@@ -11,6 +11,7 @@ import com.orm.learn_orm.model.Earning;
 import com.orm.learn_orm.model.SettlementUpload;
 import com.orm.learn_orm.repo.IEarningRepo;
 import com.orm.learn_orm.repo.ISettlementUploadRepo;
+import com.orm.learn_orm.settlement_processor.processor.EarningProcessor;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ import java.util.List;
 @Log4j2
 @Component("earningPreprocessor")
 @AllArgsConstructor
-public class EarningPreprocessor implements IPreprocessor {
+public class EarningSettlementPreprocessor implements ISettlementPreprocessor {
 
     private static final ISettlementMapper SETTLEMENT_MAPPER = ISettlementMapper.INSTANCE;
 
@@ -32,23 +33,24 @@ public class EarningPreprocessor implements IPreprocessor {
 
     @Transactional(transactionManager = "ormTransactionManager")
     @Override
-    public void preprocess(MultipartFile file, AgencyFactory<?> agencyFactory) throws IOException {
+    public void preprocess(MultipartFile file, AgencyFactory<?,?> agencyFactory) throws IOException {
         SettlementUpload settlementUpload = new SettlementUpload();
         try {
             IFileParser<EarningDTO> fileParser = (EarningFileParser) agencyFactory.getParser();
             List<EarningDTO> earningDTOs = fileParser.parseFile(file);
             List<Earning> earnings = earningDTOs.stream()
                     .map(SETTLEMENT_MAPPER::getEarning)
-                    .peek(earning -> earning.setSettlementUpload(settlementUpload))
+                    .peek(settlementUpload::addEarning)
                     .toList();
 
-            settlementUpload.setEarnings(earnings);
             updateSettlementUpload(settlementUpload, file);
             settlementUpload.setUploadStatus(UploadStatus.SUCCESS);
             SettlementUpload persistedUpload = settlementUploadRepo.save(settlementUpload);
             List<Earning> persistedEarnings = earningRepo.findAllEarningsWithSettlementUpload(persistedUpload);
-
+            EarningProcessor earningProcessor = (EarningProcessor) agencyFactory.getProcessor();
+            earningProcessor.processSettlement(persistedEarnings);
         } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
             updateSettlementUpload(settlementUpload, file);
             settlementUpload.setUploadStatus(UploadStatus.FAILURE);
             settlementUploadRepo.save(settlementUpload);

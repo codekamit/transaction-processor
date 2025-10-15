@@ -1,8 +1,8 @@
 package com.orm.learn_orm.config;
 
+import com.fasterxml.uuid.Generators;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
-import com.fasterxml.uuid.Generators;
 
 public class UuidV7Generator implements IdentifierGenerator {
 

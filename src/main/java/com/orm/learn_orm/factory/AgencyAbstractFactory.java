@@ -12,8 +12,8 @@ public class AgencyAbstractFactory {
     private final BillingFactory billingFactory;
 
 
-    public AgencyFactory<?> getFactory(SettlementType type) {
-        return (AgencyFactory<?>) switch (type) {
+    public AgencyFactory<?,?> getFactory(SettlementType type) {
+        return (AgencyFactory<?,?>) switch (type) {
             case EARNING -> earningFactory;
             case BILLING -> billingFactory;
             default -> throw new IllegalArgumentException("Unknown factory type: " + type);

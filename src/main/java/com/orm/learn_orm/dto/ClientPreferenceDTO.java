@@ -5,8 +5,6 @@ import com.orm.learn_orm.enums.SettlementLevel;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
 @Getter
 @Setter
 @SuperBuilder

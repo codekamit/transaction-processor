@@ -1,5 +1,6 @@
 package com.orm.learn_orm.controller;
 
+import com.orm.learn_orm.dto.ClientPrefKey;
 import com.orm.learn_orm.dto.ClientPreferenceDTO;
 import com.orm.learn_orm.enums.Currency;
 import com.orm.learn_orm.service.ClientPreferenceService;
@@ -33,6 +34,17 @@ public class ClientPreferenceController {
     public ResponseEntity<String> createPreferences(@RequestBody List<ClientPreferenceDTO> dtos) {
         service.createPreferences(dtos);
         return new ResponseEntity<>("Created Successfully", HttpStatus.CREATED);
+    }
+
+    @PostMapping("get-all-by-key")
+    public ResponseEntity<List<ClientPreferenceDTO>> getPreferencesByKey(@RequestBody List<ClientPrefKey> keys) {
+        return new ResponseEntity<>(service.getPreferencesByKeys(keys), HttpStatus.CREATED);
+    }
+
+    @PostMapping("edit")
+    public ResponseEntity<String> updateClientPreference(@RequestBody ClientPreferenceDTO dto) {
+        service.updateClientPreference(dto);
+        return ResponseEntity.ok("Updated Successfully");
     }
 
     /**
