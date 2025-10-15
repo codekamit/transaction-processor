@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="fund_group", schema="orm")
+@Table(name = "fund_group", schema = "orm")
 public class FundGroup {
 
     @Id
@@ -25,9 +25,20 @@ public class FundGroup {
     @JoinColumn(name = "client_preference_id")
     private ClientPreference clientPreference;
 
-    @Column(name="fund", nullable = false)
+    @Column(name = "fund", nullable = false)
     private String fund;
 
-    @Column(name="payment_fund", nullable = false)
+    @Column(name = "payment_fund", nullable = false)
     private String paymentFund;
+
+    @PrePersist
+    @PreUpdate
+    public void convertToUpperCase() {
+        if (this.fund != null) {
+            this.fund = this.fund.toUpperCase();
+        }
+        if (this.paymentFund != null) {
+            this.paymentFund = this.paymentFund.toUpperCase();
+        }
+    }
 }

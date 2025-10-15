@@ -1,0 +1,12 @@
+package com.orm.learn_orm.enums;
+
+public enum State {
+    PENDING,
+    PROCESSED,
+    PROCESSED_WITH_DEFAULT_PREF_MISSING,
+    PROCESSED_WITH_DEFAULT_FUND_GROUP_MISSING,
+    APPROVED,
+    REJECTED,
+    DEFERRED,
+    COMPLETE,
+}

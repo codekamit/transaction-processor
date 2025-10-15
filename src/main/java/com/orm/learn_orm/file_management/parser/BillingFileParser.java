@@ -33,30 +33,29 @@ public class BillingFileParser implements IFileParser<BillingDTO> {
         List<Map<String, String>> errorDetails = new ArrayList<>();
         List<List<String>> billingData = null;
         List<BillingDTO> billingDTOs = new ArrayList<>();
-        if(!StringUtils.isBlank(extension)) {
-            if(extension.endsWith(".xlsx")) {
+        if (!StringUtils.isBlank(extension)) {
+            if (extension.endsWith(".xlsx")) {
                 billingData = excelFileProcessor.processFile(file, billingFileHeader);
             } else if (extension.endsWith(".csv")) {
                 billingData = csvFileProcessor.processFile(file, billingFileHeader);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Unsupported file type: " + extension);
             }
         }
 
-        if(billingData == null) {
+        if (billingData == null) {
             throw new IllegalArgumentException("File is empty or could not be processed.");
         }
 
         billingFileHeader.allHeadersPresent(billingData.get(billingFileHeader.headerStartRow()), billingFileHeader);
         Map<String, Integer> headerMap = billingFileHeader.getHeaderIndices(billingData.get(billingFileHeader.headerStartRow()));
         int idx = billingFileHeader.headerStartRow() + 1;
-        while(idx < billingData.size()) {
+        while (idx < billingData.size()) {
             BillingDTO billingDTO = new BillingDTO();
             List<String> row = billingData.get(idx++);
-            if(billingFileHeader.hasReachedFooter(row, billingFileHeader))
+            if (billingFileHeader.hasReachedFooter(row, billingFileHeader))
                 break;
-            if(billingFileHeader.isRowEmpty(row))
+            if (billingFileHeader.isRowEmpty(row))
                 break;
 
             Map<String, String> errorMap = new HashMap<>();
@@ -72,7 +71,7 @@ public class BillingFileParser implements IFileParser<BillingDTO> {
             idx++;
         }
 
-        if(!errorDetails.isEmpty()) {
+        if (!errorDetails.isEmpty()) {
             throw new ParsingException("Errors found during parsing.", errorDetails);
         }
 

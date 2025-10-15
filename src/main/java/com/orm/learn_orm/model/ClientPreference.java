@@ -7,22 +7,22 @@ import com.orm.learn_orm.enums.Currency;
 import com.orm.learn_orm.enums.SettlementLevel;
 import com.orm.learn_orm.enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="client_preference", schema="orm", uniqueConstraints = {
-@UniqueConstraint(name = "uc_client_currency", columnNames = {"client_name", "currency"})})
+@Table(name = "client_preference", schema = "orm", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_client_currency", columnNames = {"client_name", "currency"})})
 public class ClientPreference {
 
     @Id
@@ -31,33 +31,47 @@ public class ClientPreference {
     @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name="client_name", nullable = false)
+    @Column(name = "client_name", nullable = false)
     private String clientName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="settlement_level", nullable = false)
+    @Column(name = "settlement_level", nullable = false)
     private SettlementLevel settlementLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="currency", nullable = false)
+    @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    @Column(name="netting", nullable = false)
+    @Column(name = "netting", nullable = false)
     private boolean netting;
 
-    @OneToMany(mappedBy = "clientPreference", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "clientPreference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FundGroup> fundMapping;
 
-    @Column(name="status", nullable = false)
+    @Column(name = "status", nullable = false)
     private Status status;
+
+    public static List<String> getFormattedKeys(List<ClientPrefKey> keys) {
+        return keys.stream()
+                .map(key -> String.format("%s:%s", key.clientName().toUpperCase(), key.currency().name()))
+                .toList();
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void convertToUpperCase() {
+        if (this.clientName != null) {
+            this.clientName = this.clientName.toUpperCase();
+        }
+    }
+
+    public void delinkFundGroupMapping() {
+        if (this.fundMapping != null) {
+            this.fundMapping.clear();
+        }
+    }
 
     public ClientPrefKey getKey() {
         return new ClientPrefKey(this.clientName, this.currency);
-    }
-
-    public static List<String> getFormattedKeys(List <ClientPrefKey> keys) {
-        return keys.stream()
-                .map(key -> String.format("('%s','%s')", key.clientName(), key.currency().name()))
-                .toList();
     }
 }

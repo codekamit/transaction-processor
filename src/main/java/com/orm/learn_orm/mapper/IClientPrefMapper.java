@@ -1,7 +1,9 @@
 package com.orm.learn_orm.mapper;
 
+import com.orm.learn_orm.dto.ClientPrefProcessingDTO;
 import com.orm.learn_orm.dto.ClientPreferenceDTO;
 import com.orm.learn_orm.dto.FundGroupDTO;
+import com.orm.learn_orm.enums.SettlementLevel;
 import com.orm.learn_orm.model.ClientPreference;
 import com.orm.learn_orm.model.FundGroup;
 import org.mapstruct.Mapper;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Mapper
 public interface IClientPrefMapper {
@@ -54,5 +57,32 @@ public interface IClientPrefMapper {
         });
         fundGroupDTO.setFundMap(mapping);
         return fundGroupDTO;
+    }
+
+    default ClientPrefProcessingDTO mapClientPrefProcessingDTO(ClientPreference clientPreference) {
+        ClientPrefProcessingDTO clientPrefProcessingDTO = new ClientPrefProcessingDTO();
+        if (SettlementLevel.CLIENT == clientPreference.getSettlementLevel()) {
+            String paymentFund = clientPreference.getFundMapping()
+                    .get(0)
+                    .getPaymentFund();
+            clientPrefProcessingDTO.setPaymentFund(paymentFund);
+            clientPrefProcessingDTO.setFundMapping(null);
+        } else if (SettlementLevel.PAYMENT_FUND == clientPreference.getSettlementLevel()) {
+            Map<String, String> mapping = clientPreference.getFundMapping().stream()
+                    .collect(Collectors.toMap(
+                            FundGroup::getFund,
+                            FundGroup::getPaymentFund));
+            clientPrefProcessingDTO.setFundMapping(mapping);
+            clientPrefProcessingDTO.setPaymentFund(null);
+        } else {
+            clientPrefProcessingDTO.setPaymentFund(null);
+            clientPrefProcessingDTO.setFundMapping(new HashMap<>());
+        }
+        clientPrefProcessingDTO.setClientName(clientPreference.getClientName());
+        clientPrefProcessingDTO.setCurrency(clientPreference.getCurrency());
+        clientPrefProcessingDTO.setNetting(clientPreference.isNetting());
+        clientPrefProcessingDTO.setStatus(clientPreference.getStatus());
+        clientPrefProcessingDTO.setSettlementLevel(clientPreference.getSettlementLevel());
+        return clientPrefProcessingDTO;
     }
 }

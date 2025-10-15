@@ -27,7 +27,7 @@ public class CSVFileProcessor implements IFileProcessor {
         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT);
         List<CSVRecord> csvRecords = csvParser.getRecords();
 
-        for(int idx = fileHeaders.headerStartCol(); idx < csvRecords.size(); idx++) {
+        for (int idx = fileHeaders.headerStartCol(); idx < csvRecords.size(); idx++) {
             List<String> row = new ArrayList<>();
             csvRecords.get(idx).forEach(csvRecord -> row.add(csvRecord.trim()));
             records.add(row);

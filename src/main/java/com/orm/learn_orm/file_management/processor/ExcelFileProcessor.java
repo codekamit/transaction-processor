@@ -17,30 +17,6 @@ import java.util.List;
 @Component("excelFileProcessor")
 public class ExcelFileProcessor implements IFileProcessor {
 
-    public List<List<String>> processFile(MultipartFile file, IFileHeader fileHeaders) throws IOException  {
-        List<List<String>> rawData = new ArrayList<>();
-
-        try (InputStream inputStream = file.getInputStream();
-             Workbook workbook = WorkbookFactory.create(inputStream)) {
-            Sheet sheet = workbook.getSheetAt(fileHeaders.sheetNumber());
-
-            for (int i = fileHeaders.headerStartRow(); i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) {
-                    break;
-                }
-
-                List<String> rowData = new ArrayList<>();
-                for (int j = fileHeaders.headerStartCol(); j < row.getLastCellNum(); j++) {
-                    Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                    rowData.add(getCellValueAsString(cell));
-                }
-                rawData.add(rowData);
-            }
-        }
-        return rawData;
-    }
-
     public static String getCellValueAsString(Cell cell) {
         if (cell == null) {
             return null;
@@ -102,6 +78,30 @@ public class ExcelFileProcessor implements IFileProcessor {
             cell.setCellValue("");
             return cell;
         }
+    }
+
+    public List<List<String>> processFile(MultipartFile file, IFileHeader fileHeaders) throws IOException {
+        List<List<String>> rawData = new ArrayList<>();
+
+        try (InputStream inputStream = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(inputStream)) {
+            Sheet sheet = workbook.getSheetAt(fileHeaders.sheetNumber());
+
+            for (int i = fileHeaders.headerStartRow(); i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) {
+                    break;
+                }
+
+                List<String> rowData = new ArrayList<>();
+                for (int j = fileHeaders.headerStartCol(); j < row.getLastCellNum(); j++) {
+                    Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                    rowData.add(getCellValueAsString(cell));
+                }
+                rawData.add(rowData);
+            }
+        }
+        return rawData;
     }
 }
 

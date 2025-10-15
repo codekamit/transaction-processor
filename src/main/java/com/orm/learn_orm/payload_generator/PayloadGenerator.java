@@ -20,23 +20,6 @@ public class PayloadGenerator {
     // @Data generates getters, setters, toString, etc.
     // @AllArgsConstructor generates a constructor with all fields.
 
-    @Data
-    @AllArgsConstructor
-    static class Book {
-        private String title;
-        private String genre;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Author {
-        private String name;
-        private String email;
-        private List<Book> books;
-    }
-
-    // --- Main Generation Logic ---
-
     public static void main(String[] args) {
         System.out.println("Starting payload generation...");
 
@@ -74,5 +57,22 @@ public class PayloadGenerator {
             System.err.println("Error writing JSON file: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Book {
+        private String title;
+        private String genre;
+    }
+
+    // --- Main Generation Logic ---
+
+    @Data
+    @AllArgsConstructor
+    static class Author {
+        private String name;
+        private String email;
+        private List<Book> books;
     }
 }

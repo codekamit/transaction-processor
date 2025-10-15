@@ -2,11 +2,21 @@ package com.orm.learn_orm.factory;
 
 import com.orm.learn_orm.file_management.header.IFileHeader;
 import com.orm.learn_orm.file_management.parser.IFileParser;
-import com.orm.learn_orm.settlement_processor.IPreprocessor;
+import com.orm.learn_orm.marker_interface.ISettlement;
+import com.orm.learn_orm.marker_interface.ISettlementDTO;
+import com.orm.learn_orm.service.ISettlementService;
+import com.orm.learn_orm.settlement_processor.preprocessor.ISettlementPreprocessor;
+import com.orm.learn_orm.settlement_processor.processor.ISettlementProcessor;
 
-public interface AgencyFactory<T> {
+public interface AgencyFactory<T extends ISettlementDTO, E extends ISettlement> {
 
     IFileParser<T> getParser();
+
     IFileHeader getFileHeader();
-    IPreprocessor getPreprocessor();
+
+    ISettlementPreprocessor getPreprocessor();
+
+    ISettlementProcessor<E> getProcessor();
+
+    ISettlementService getSettlementService();
 }

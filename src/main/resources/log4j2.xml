@@ -17,6 +17,10 @@
             <AppenderRef ref="Console"/>
         </Logger>
 
+        <Logger name="com.orm.learn_orm" level="error" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

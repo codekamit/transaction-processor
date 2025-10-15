@@ -67,7 +67,7 @@ public class DataSourceConfig {
                 .build();
     }
 
-    @Bean(name="ormEntityManagerFactory")
+    @Bean(name = "ormEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
@@ -96,7 +96,7 @@ public class DataSourceConfig {
         return emf;
     }
 
-    @Bean(name="ormTransactionManager")
+    @Bean(name = "ormTransactionManager")
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }

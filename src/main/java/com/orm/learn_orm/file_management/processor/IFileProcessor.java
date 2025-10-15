@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface IFileProcessor {
 
-    public List<List<String>> processFile(MultipartFile file, IFileHeader fileHeaders) throws IOException;
+    List<List<String>> processFile(MultipartFile file, IFileHeader fileHeaders) throws IOException;
 }
