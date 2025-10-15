@@ -73,8 +73,6 @@ public class EarningFileParser implements IFileParser<EarningDTO> {
             if(!errorMap.isEmpty()) {
                 errorDetails.add(errorMap);
             }
-
-            idx++;
         }
 
         if(!errorDetails.isEmpty()) {

@@ -2,6 +2,7 @@ package com.orm.learn_orm.dto;
 
 
 import com.orm.learn_orm.enums.Currency;
+import com.orm.learn_orm.marker_interface.ISettlementDTO;
 import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.Map;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EarningDTO {
+public class EarningDTO implements ISettlementDTO {
 
     private String currency;
     private String clientName;

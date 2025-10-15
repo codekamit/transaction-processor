@@ -1,18 +1,23 @@
 package com.orm.learn_orm.model;
 
 
+import com.orm.learn_orm.config.UuidV7Generator;
+import com.orm.learn_orm.dto.ClientPrefKey;
 import com.orm.learn_orm.enums.Currency;
 import com.orm.learn_orm.enums.SettlementLevel;
 import com.orm.learn_orm.enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -21,9 +26,10 @@ import java.util.List;
 public class ClientPreference {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_preference_seq")
-    @SequenceGenerator(name = "client_preference_seq", sequenceName = "client_preference_sequence", allocationSize = 50)
-    private Long id;
+    @GeneratedValue(generator = "uuidv7-generator")
+    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
+    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name="client_name", nullable = false)
     private String clientName;
@@ -40,8 +46,32 @@ public class ClientPreference {
     private boolean netting;
 
     @OneToMany(mappedBy = "clientPreference", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FundGroup> fundMapping = new ArrayList<>();
+    private List<FundGroup> fundMapping;
 
     @Column(name="status", nullable = false)
     private Status status;
+
+    @PrePersist
+    @PreUpdate
+    public void convertToUpperCase() {
+        if (this.clientName != null) {
+            this.clientName = this.clientName.toUpperCase();
+        }
+    }
+
+    public void delinkFundGroupMapping() {
+        if (this.fundMapping != null) {
+            this.fundMapping.clear();
+        }
+    }
+
+    public ClientPrefKey getKey() {
+        return new ClientPrefKey(this.clientName, this.currency);
+    }
+
+    public static List<String> getFormattedKeys(List <ClientPrefKey> keys) {
+        return keys.stream()
+                .map(key -> String.format("%s:%s", key.clientName().toUpperCase(), key.currency().name()))
+                .toList();
+    }
 }
