@@ -12,7 +12,7 @@ public class AgencyAbstractFactory {
     private final BillingFactory billingFactory;
 
 
-    public AgencyFactory<?, ?> getFactory(SettlementType type) {
+    public AgencyFactory<?,?,?,?> getFactory(SettlementType type) {
         return switch (type) {
             case EARNING -> earningFactory;
             case BILLING -> billingFactory;

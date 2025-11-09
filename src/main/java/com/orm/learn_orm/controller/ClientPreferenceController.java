@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @AllArgsConstructor
@@ -73,7 +74,7 @@ public class ClientPreferenceController {
      */
     @PutMapping("update/{id}")
     public ResponseEntity<String> updatePreference(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody ClientPreferenceDTO dto) {
         service.updatePreference(id, dto);
         return ResponseEntity.ok("Updated Successfully");
@@ -84,7 +85,7 @@ public class ClientPreferenceController {
      * DELETE /api/client-preference/123
      */
     @DeleteMapping("delete/{id}")
-    public ResponseEntity<Void> deletePreference(@PathVariable Long id) {
+    public ResponseEntity<Void> deletePreference(@PathVariable UUID id) {
         service.deletePreference(id);
         return ResponseEntity.noContent().build();
     }

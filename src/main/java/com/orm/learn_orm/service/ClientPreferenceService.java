@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -92,7 +93,7 @@ public class ClientPreferenceService {
     }
 
     @Transactional(transactionManager = "ormTransactionManager")
-    public void updatePreference(Long id, ClientPreferenceDTO dto) {
+    public void updatePreference(UUID id, ClientPreferenceDTO dto) {
         ClientPreference clientPreference = clientPreferenceRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("ClientPreference not found"));
         CLIENT_PREF_MAPPER.updateClientPreference(dto, clientPreference);
@@ -100,7 +101,7 @@ public class ClientPreferenceService {
     }
 
     @Transactional(transactionManager = "ormTransactionManager")
-    public void deletePreference(Long id) {
+    public void deletePreference(UUID id) {
         ClientPreference clientPreference = clientPreferenceRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("ClientPreference not found"));
         clientPreferenceRepo.delete(clientPreference);

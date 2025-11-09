@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/settlement")
@@ -27,7 +26,7 @@ public class SettlementController {
     }
 
     @PostMapping("suspend-netted-settlement")
-    public ResponseEntity<String> suspendNetSettlement(@RequestParam(value = "id", required = true) UUID id,
+    public ResponseEntity<String> suspendNetSettlement(@RequestParam(value = "id", required = true) String id,
                                                        @RequestParam(value = "settlementType", required = true) SettlementType settlementType) {
         settlementProcessor.suspendNettedSettlement(id, settlementType);
         return new ResponseEntity<>("Suspended Successfully", HttpStatus.OK);

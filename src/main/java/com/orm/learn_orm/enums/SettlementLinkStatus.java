@@ -1,4 +1,4 @@
-package com.orm.learn_orm;
+package com.orm.learn_orm.enums;
 
 public enum SettlementLinkStatus {
     LINKED,

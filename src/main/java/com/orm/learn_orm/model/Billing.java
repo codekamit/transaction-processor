@@ -1,16 +1,12 @@
 package com.orm.learn_orm.model;
 
 
-import com.orm.learn_orm.config.UuidV7Generator;
 import com.orm.learn_orm.marker_interface.ISettlement;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
-
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -21,10 +17,8 @@ import java.util.UUID;
 public class Billing implements ISettlement {
 
     @Id
-    @GeneratedValue(generator = "uuidv7-generator")
-    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
-    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "id", updatable = false, nullable = false, length = 16)
+    private String id;
     @Column(name = "received_amount", nullable = false)
     private Double receivedAmount;
     @Column(name = "currency", nullable = false)

@@ -10,9 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -35,31 +32,7 @@ public class SettlementUpload {
     private SettlementType settlementType;
     @Column(name = "file_size", nullable = false)
     private String fileSize;
-    @OneToMany(mappedBy = "settlementUpload", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    private List<Earning> earnings;
-    @OneToMany(mappedBy = "settlementUpload", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    private List<NetEarning> netEarnings;
-    @OneToMany(mappedBy = "settlementUpload", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    private List<Billing> billings;
-    @OneToMany(mappedBy = "settlementUpload", cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    private List<NetBilling> netBillings;
     @Enumerated(EnumType.STRING)
     @Column(name = "upload_status", nullable = false)
     private UploadStatus uploadStatus;
-
-    public void addNetEarning(NetEarning netEarning) {
-        if (this.netEarnings == null) {
-            this.netEarnings = new ArrayList<>();
-        }
-        this.netEarnings.add(netEarning);
-        netEarning.setSettlementUpload(this);
-    }
-
-    public void addEarning(Earning earning) {
-        if (this.earnings == null) {
-            this.earnings = new ArrayList<>();
-        }
-        this.earnings.add(earning);
-        earning.setSettlementUpload(this);
-    }
 }

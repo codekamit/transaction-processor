@@ -16,11 +16,9 @@
         <Logger name="logging.level.org.springframework.jdbc.core" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-
-        <Logger name="com.orm.learn_orm" level="error" additivity="false">
+        <Logger name="com.orm.learn_orm" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

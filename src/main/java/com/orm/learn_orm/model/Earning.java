@@ -23,10 +23,8 @@ import java.util.UUID;
 public class Earning implements ISettlement {
 
     @Id
-    @GeneratedValue(generator = "uuidv7-generator")
-    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
-    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "id", updatable = false, nullable = false, length = 16)
+    private String id;
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
     private Currency currency;

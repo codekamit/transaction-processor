@@ -39,8 +39,6 @@ public class EarningNettingScenario {
                     netEarning.setAmount(earning.getAmount());
                     netEarning.setPaymentFund(clientPreference.getPaymentFund());
                     netEarning.setState(State.PROCESSED);
-                    netEarning.addEarning(earning);
-                    settlementUpload.addNetEarning(netEarning);
                     earningHandlerContext.addNetEarning(netEarning);
                 });
     }
@@ -56,8 +54,6 @@ public class EarningNettingScenario {
                     netEarning.setAmount(earning.getAmount());
                     netEarning.setPaymentFund(earning.getFund());
                     netEarning.setState(State.PROCESSED);
-                    netEarning.addEarning(earning);
-                    settlementUpload.addNetEarning(netEarning);
                     earningHandlerContext.addNetEarning(netEarning);
                 });
     }
@@ -85,8 +81,6 @@ public class EarningNettingScenario {
                         netEarning.setAmount(earning.getAmount());
                         netEarning.setPaymentFund(fundMap.get(earning.getFund()));
                         netEarning.setState(State.PROCESSED);
-                        netEarning.addEarning(earning);
-                        settlementUpload.addNetEarning(netEarning);
                         earningHandlerContext.addNetEarning(netEarning);
                     }
                 });
@@ -113,11 +107,9 @@ public class EarningNettingScenario {
 
         earningHandlerContext.getEarnings()
                 .forEach(earning -> {
-                    netEarning.addEarning(earning);
                     earning.setState(State.PROCESSED);
                 });
         netEarning.setPaymentFund(clientPreference.getPaymentFund());
-        settlementUpload.addNetEarning(netEarning);
         earningHandlerContext.addNetEarning(netEarning);
     }
 
@@ -138,10 +130,8 @@ public class EarningNettingScenario {
 
             netEarning.setPaymentFund(fund);
             earnings.forEach(earning -> {
-                netEarning.addEarning(earning);
                 earning.setState(State.PROCESSED);
             });
-            settlementUpload.addNetEarning(netEarning);
             earningHandlerContext.addNetEarning(netEarning);
         });
     }
@@ -178,10 +168,8 @@ public class EarningNettingScenario {
                         .sum());
                 netEarning.setPaymentFund(paymentFund);
                 earnings.forEach(earning -> {
-                    netEarning.addEarning(earning);
                     earning.setState(State.PROCESSED);
                 });
-                settlementUpload.addNetEarning(netEarning);
                 earningHandlerContext.addNetEarning(netEarning);
             }
         });
@@ -194,8 +182,6 @@ public class EarningNettingScenario {
                 .forEach(earning -> {
                     earning.setState(State.PROCESSED_WITH_DEFAULT_PREF_MISSING);
                     NetEarning netEarning = SETTLEMENT_MAPPER.getNetEarningForMissingPref(earning);
-                    netEarning.addEarning(earning);
-                    settlementUpload.addNetEarning(netEarning);
                     earningHandlerContext.addNetEarning(netEarning);
                 });
     }
@@ -204,8 +190,6 @@ public class EarningNettingScenario {
     public NetEarning defaultNettingFundMapMissing(Earning earning, SettlementUpload settlementUpload) {
         earning.setState(State.PROCESSED_WITH_DEFAULT_FUND_GROUP_MISSING);
         NetEarning netEarning = SETTLEMENT_MAPPER.getNetEarningForMissingFundMap(earning);
-        netEarning.addEarning(earning);
-        settlementUpload.addNetEarning(netEarning);
         return netEarning;
     }
 }

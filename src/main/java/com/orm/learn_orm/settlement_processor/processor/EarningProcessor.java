@@ -2,11 +2,11 @@ package com.orm.learn_orm.settlement_processor.processor;
 
 import com.orm.learn_orm.dto.ClientPrefKey;
 import com.orm.learn_orm.dto.ClientPrefProcessingDTO;
+import com.orm.learn_orm.dto.EarningProcessDTO;
 import com.orm.learn_orm.mapper.IClientPrefMapper;
-import com.orm.learn_orm.model.ClientPreference;
 import com.orm.learn_orm.model.Earning;
+import com.orm.learn_orm.model.NetEarning;
 import com.orm.learn_orm.model.SettlementUpload;
-import com.orm.learn_orm.repo.IClientPreferenceRepo;
 import com.orm.learn_orm.settlement_processor.handler_lambda.HandlerLamdas;
 import com.orm.learn_orm.settlement_processor.handlers.EarningHandlerContext;
 import lombok.AllArgsConstructor;
@@ -25,24 +25,24 @@ import static java.util.stream.Collectors.groupingBy;
 @Log4j2
 @Service
 @AllArgsConstructor
-public class EarningProcessor implements ISettlementProcessor<Earning> {
+public class EarningProcessor implements ISettlementProcessor<EarningProcessDTO, NetEarning> {
 
     private static final IClientPrefMapper PREF_MAPPER = IClientPrefMapper.INSTANCE;
 
-    private final IClientPreferenceRepo clientPreferenceRepo;
     private final HandlerLamdas lamdas;
 
     @Override
     @Transactional(transactionManager = "ormTransactionManager")
-    public void processSettlement(List<Earning> earnings) {
+    public List<NetEarning> processSettlement(EarningProcessDTO earningProcessDTO) {
         List<ClientPrefKey> keys = new ArrayList<>();
-        SettlementUpload settlementUpload = earnings.get(0).getSettlementUpload();
-        Map<ClientPrefKey, List<Earning>> earningsByClientPref = earnings.stream()
+        List<NetEarning> netEarnings = new ArrayList<>();
+        SettlementUpload settlementUpload = earningProcessDTO.getSettlementUpload();
+
+        Map<ClientPrefKey, List<Earning>> earningsByClientPref = earningProcessDTO.getEarnings().stream()
                 .peek(earning -> keys.add(new ClientPrefKey(earning.getClientName(), earning.getCurrency())))
                 .collect(groupingBy(earning -> new ClientPrefKey(earning.getClientName(), earning.getCurrency())));
 
-        List<ClientPreference> clientPreferences = clientPreferenceRepo.findPrefWithFundMappingForClientKeys(ClientPreference.getFormattedKeys(keys));
-        Map<ClientPrefKey, ClientPrefProcessingDTO> clientPrefMap = clientPreferences.stream()
+        Map<ClientPrefKey, ClientPrefProcessingDTO> clientPrefMap = earningProcessDTO.getClientPreferences().stream()
                 .map(PREF_MAPPER::mapClientPrefProcessingDTO)
                 .collect(Collectors.toMap(ClientPrefProcessingDTO::getKey,
                         pref -> pref));
@@ -58,10 +58,12 @@ public class EarningProcessor implements ISettlementProcessor<Earning> {
             lamdas.fetchEarningNettingHandler().process(context);
             try {
                 lamdas.fetchEarningPersistentHandler().process((context));
+                netEarnings.addAll(context.getNetEarnings());
             } catch (UnexpectedRollbackException ex) {
                 log.error(ex.getMostSpecificCause());
                 log.info(ex.getRootCause());
             }
         });
+        return netEarnings;
     }
 }

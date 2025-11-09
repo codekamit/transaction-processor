@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface IClientPreferenceRepo extends JpaRepository<ClientPreference, Long> {
+public interface IClientPreferenceRepo extends JpaRepository<ClientPreference, UUID> {
 
     @Query("""
             SELECT DISTINCT cp 
