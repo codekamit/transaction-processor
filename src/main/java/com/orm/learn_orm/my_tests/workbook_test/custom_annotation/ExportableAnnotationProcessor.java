@@ -1,6 +1,8 @@
 package com.orm.learn_orm.my_tests.workbook_test.custom_annotation;
 
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
@@ -11,21 +13,20 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-/**
- * Shared utility class to process annotations for any export format.
- * It uses reflection to find all headers and fields to be exported.
- */
-
 @Service
 @AllArgsConstructor
 public class ExportableAnnotationProcessor {
+
+    private static final Logger LOGGER = LogManager.getLogger(ExportableAnnotationProcessor.class);
+    private static final String INVALID_EXCEL_COLUMN_USAGE_PARAMETER_EXP = "Invalid @ExportColumn on method '%s': Method must not have any parameters.";
+    private static final String INVALID_EXCEL_COLUMN_NO_RETURN_EXP = "Invalid @ExportColumn on method '%s': Method must return a value (not void).";
+    private static final String GENERIC_FIELD_EXP = "Error getting generic type for field: {} | Error: {}";
 
     /**
      * Public helper class to store a Field or Method to be processed.
      */
     public static class ProcessedColumn {
-        public final Object member; // Will be a Field or a Method
+        public final Object member;
         public final String headerName;
         public final int order;
 
@@ -77,14 +78,18 @@ public class ExportableAnnotationProcessor {
         return convertCamelCaseToTitleCase(fieldName);
     }
 
-    public List<ProcessedColumn> getOrderedProcessedFields(Class<?> clazz) {
+    /**
+     * Retrieves and filters the exportable members (fields and methods) based on the active export groups.
+     *
+     * @param clazz The DTO class to analyze.
+     * @param activeGroups The marker interfaces representing the current export context (e.g., ClientReport.class).
+     * @return A sorted list of members to be included in the export.
+     */
+    public List<ProcessedColumn> getOrderedProcessedFields(Class<?> clazz, Class<?>... activeGroups) {
         List<ProcessedColumn> membersList = new ArrayList<>();
+        Set<Class<?>> activeGroupSet = new HashSet<>(Arrays.asList(activeGroups));
 
         Set<String> excludedFields = new HashSet<>();
-        if (clazz.isAnnotationPresent(ExportIgnore.class)) {
-            ExportIgnore ignoreAnnotation = clazz.getAnnotation(ExportIgnore.class);
-            excludedFields.addAll(Arrays.asList(ignoreAnnotation.excludes()));
-        }
 
         Stack<Class<?>> classStack = new Stack<>();
         Class<?> current = clazz;
@@ -105,6 +110,11 @@ public class ExportableAnnotationProcessor {
 
                 if (field.isAnnotationPresent(ExportColumn.class)) {
                     ExportColumn annotation = field.getAnnotation(ExportColumn.class);
+
+                    if (!shouldInclude(annotation.groups(), activeGroupSet)) {
+                        continue;
+                    }
+
                     int order = annotation.order();
                     String headerName;
                     if (annotation.name().isEmpty()) {
@@ -116,21 +126,27 @@ public class ExportableAnnotationProcessor {
                 }
             }
 
+            // --- 2. METHOD PROCESSING ---
             for (Method method : c.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExportColumn.class)) {
 
                     if (method.getParameterCount() != 0) {
                         throw new RuntimeException(String.format(
-                                "Invalid @ExcelColumn on method '%s': Method must not have any parameters.", method.getName()
+                                INVALID_EXCEL_COLUMN_USAGE_PARAMETER_EXP, method.getName()
                         ));
                     }
                     if (method.getReturnType() == void.class) {
                         throw new RuntimeException(String.format(
-                                "Invalid @ExcelColumn on method '%s': Method must return a value (not void).", method.getName()
+                                INVALID_EXCEL_COLUMN_NO_RETURN_EXP, method.getName()
                         ));
                     }
 
                     ExportColumn annotation = method.getAnnotation(ExportColumn.class);
+
+                    if (!shouldInclude(annotation.groups(), activeGroupSet)) {
+                        continue;
+                    }
+
                     int order = annotation.order();
                     String headerName;
                     if (annotation.name().isEmpty()) {
@@ -145,6 +161,27 @@ public class ExportableAnnotationProcessor {
 
         membersList.sort(Comparator.comparingInt(pc -> pc.order));
         return membersList;
+    }
+
+    /**
+     * Core logic to determine if a member should be included based on group overlap.
+     */
+    private boolean shouldInclude(Class<?>[] fieldGroups, Set<Class<?>> activeGroups) {
+
+        if (activeGroups.isEmpty()) {
+            return fieldGroups.length == 0;
+        }
+
+        if (fieldGroups.length == 0) {
+            return false;
+        }
+
+        for (Class<?> fieldGroup : fieldGroups) {
+            if (activeGroups.contains(fieldGroup)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Field getFieldByAnnotation(Class<?> clazz, Class<? extends java.lang.annotation.Annotation> annotationClass) {
@@ -171,10 +208,9 @@ public class ExportableAnnotationProcessor {
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error getting generic type for field: " + listField.getName() + " | Error: " + e.getMessage());
+            LOGGER.error(GENERIC_FIELD_EXP, listField.getName(), e.getMessage());
             return null;
         }
         return null;
     }
 }
-

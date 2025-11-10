@@ -17,4 +17,5 @@ public @interface ExportIgnore {
      * An array of field names (as strings) to exclude from the export.
      */
     String[] excludes() default {};
+    Class<?>[] groups() default {};
 }

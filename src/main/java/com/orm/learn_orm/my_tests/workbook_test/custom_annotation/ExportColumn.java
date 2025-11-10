@@ -12,4 +12,5 @@ import java.lang.annotation.Target;
 public @interface ExportColumn {
     String name() default "";
     int order() default Integer.MAX_VALUE;
+    Class<?>[] groups() default {};
 }

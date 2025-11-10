@@ -1,6 +1,9 @@
 package com.orm.learn_orm.my_tests.workbook_test.generator;
 
+
+import com.orm.learn_orm.my_tests.workbook_test.GenericExportRequest;
 import com.orm.learn_orm.my_tests.workbook_test.IExportable;
+import com.orm.learn_orm.my_tests.workbook_test.ReportGroupResolver;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportNested;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportableAnnotationProcessor;
 import lombok.AllArgsConstructor;
@@ -16,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
 @Service
 @AllArgsConstructor
 public class WorkBookGenerator {
@@ -24,10 +26,22 @@ public class WorkBookGenerator {
     private static final int MAX_ROWS = 100_000;
     private static final short INDENTATION_SIZE = 1;
     private static final int SXSSF_WINDOW_SIZE = 100;
+    private static final String INVALID_NESTED_USAGE_CLASS_CAST_EXP = "Invalid @ExportNested usage: Field '%s' in class '%s' is not a List. Found type: %s";
+    private static final String INVALID_NESTED_USAGE_NOT_GENERIC_COLLECTION_EXP = "Invalid @ExportNested usage: Field '%s' in class '%s' must be a generic List (e.g., List<MyDTO>). Found raw List.";
+    private static final String INVALID_NESTED_USAGE_NOT_EXPORTABLE_EXP = "Invalid @ExportNested usage: The type '%s' in field '%s' does not implement 'IExportable'.";
+
 
     private final ExportableAnnotationProcessor annotationProcessor;
-    
-    public Workbook createWorkbook(List<? extends IExportable> data, String sheetName) {
+    private final ReportGroupResolver reportGroupResolver;
+
+    /**
+     * MODIFIED: Added activeGroups parameter
+     */
+    public Workbook createWorkbook(GenericExportRequest exportRequest) {
+        List<?> data = exportRequest.getExportableData();
+        String sheetName = exportRequest.getSheetName();
+        Class<?>[] activeGroups = new Class[]{reportGroupResolver.resolve(exportRequest.getActiveGroup())};
+
 
         Workbook workbook = new SXSSFWorkbook(SXSSF_WINDOW_SIZE);
         SXSSFSheet sheet = (SXSSFSheet) workbook.createSheet(sheetName);
@@ -38,8 +52,8 @@ public class WorkBookGenerator {
         }
 
         CellStyle headerStyle = createHeaderStyle(workbook);
-        CellStyle dateCellStyle = createDateCellStyle(workbook, "yyyy-mm-dd");
-        CellStyle dateTimeCellStyle = createDateCellStyle(workbook, "yyyy-mm-dd hh:mm:ss");
+        CellStyle dateCellStyle = createDateCellStyle(workbook, "yyyy-MM-dd");
+        CellStyle dateTimeCellStyle = createDateCellStyle(workbook, "MM-dd-yyyy-hh-mm-ss");
         CellStyle decimalCellStyle = createDecimalCellStyle(workbook);
 
         CellStyle indentedStyle = workbook.createCellStyle();
@@ -60,32 +74,37 @@ public class WorkBookGenerator {
         try {
             Class<?> dtoClass = data.get(0).getClass();
 
-            List<ExportableAnnotationProcessor.ProcessedColumn> parentMembers = annotationProcessor.getOrderedProcessedFields(dtoClass);
+            // MODIFIED: Pass activeGroups to the annotation processor
+            List<ExportableAnnotationProcessor.ProcessedColumn> parentMembers =
+                    annotationProcessor.getOrderedProcessedFields(dtoClass, activeGroups);
+
             Field nestedListField = annotationProcessor.getFieldByAnnotation(dtoClass, ExportNested.class);
             List<ExportableAnnotationProcessor.ProcessedColumn> childMembers = new ArrayList<>();
 
             if (nestedListField != null) {
                 if (!List.class.isAssignableFrom(nestedListField.getType())) {
                     throw new RuntimeException(String.format(
-                            "Invalid @ExcelNested usage: Field '%s' in class '%s' is not a List. Found type: %s",
+                            INVALID_NESTED_USAGE_CLASS_CAST_EXP,
                             nestedListField.getName(), dtoClass.getSimpleName(), nestedListField.getType().getSimpleName()
                     ));
                 }
                 Class<?> childDtoClass = annotationProcessor.getGenericTypeOfList(nestedListField);
                 if (childDtoClass == null) {
                     throw new RuntimeException(String.format(
-                            "Invalid @ExcelNested usage: Field '%s' in class '%s' must be a generic List (e.g., List<MyDTO>). Found raw List.",
+                            INVALID_NESTED_USAGE_NOT_GENERIC_COLLECTION_EXP,
                             nestedListField.getName(), dtoClass.getSimpleName()
                     ));
                 }
                 if (!IExportable.class.isAssignableFrom(childDtoClass)) {
                     throw new RuntimeException(String.format(
-                            "Invalid @ExcelNested usage: The type '%s' in field '%s' does not implement 'ExcelExportable'.",
+                            INVALID_NESTED_USAGE_NOT_EXPORTABLE_EXP,
                             childDtoClass.getSimpleName(), nestedListField.getName()
                     ));
                 }
                 nestedListField.setAccessible(true);
-                childMembers = annotationProcessor.getOrderedProcessedFields(childDtoClass);
+
+                // MODIFIED: Pass activeGroups for the child DTO as well
+                childMembers = annotationProcessor.getOrderedProcessedFields(childDtoClass, activeGroups);
             }
 
             List<String> masterHeaderList = new ArrayList<>();
@@ -185,10 +204,10 @@ public class WorkBookGenerator {
     }
 
     private void createCell(Row row, int column, Object value,
-                                   CellStyle baseStyle,
-                                   CellStyle dateCellStyle,
-                                   CellStyle dateTimeCellStyle,
-                                   CellStyle decimalCellStyle) {
+                            CellStyle baseStyle,
+                            CellStyle dateCellStyle,
+                            CellStyle dateTimeCellStyle,
+                            CellStyle decimalCellStyle) {
 
         Cell cell = row.createCell(column);
         if (baseStyle != null) {
@@ -227,4 +246,3 @@ public class WorkBookGenerator {
         }
     }
 }
-

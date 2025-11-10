@@ -1,6 +1,8 @@
 package com.orm.learn_orm.my_tests.workbook_test.generator;
 
+import com.orm.learn_orm.my_tests.workbook_test.GenericExportRequest;
 import com.orm.learn_orm.my_tests.workbook_test.IExportable;
+import com.orm.learn_orm.my_tests.workbook_test.ReportGroupResolver;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportNested;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportableAnnotationProcessor;
 import lombok.AllArgsConstructor;
@@ -14,9 +16,13 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -26,18 +32,21 @@ public class CsvGenerator {
     private static final String CHILD_INDENT_PREFIX = "  ";
 
     private final ExportableAnnotationProcessor annotationProcessor;
+    private final ReportGroupResolver reportGroupResolver;
 
-    public StreamingResponseBody createCsvStream(List<? extends IExportable> data) {
+    public StreamingResponseBody createCsvStream(GenericExportRequest exportRequest) {
+        List<?> data = exportRequest.getExportableData();
+        Class<?>[] activeGroups = new Class[]{reportGroupResolver.resolve(exportRequest.getActiveGroup())};
 
         if (data == null || data.isEmpty()) {
             return outputStream -> {
-            }; // Return empty stream
+            };
         }
 
         try {
             Class<?> dtoClass = data.get(0).getClass();
 
-            List<ExportableAnnotationProcessor.ProcessedColumn> parentMembers = annotationProcessor.getOrderedProcessedFields(dtoClass);
+            List<ExportableAnnotationProcessor.ProcessedColumn> parentMembers = annotationProcessor.getOrderedProcessedFields(dtoClass, activeGroups);
             Field nestedListField = annotationProcessor.getFieldByAnnotation(dtoClass, ExportNested.class);
             List<ExportableAnnotationProcessor.ProcessedColumn> childMembers = new ArrayList<>();
 
@@ -45,18 +54,16 @@ public class CsvGenerator {
                 Class<?> childDtoClass = annotationProcessor.getGenericTypeOfList(nestedListField);
                 if (childDtoClass != null && IExportable.class.isAssignableFrom(childDtoClass)) {
                     nestedListField.setAccessible(true);
-                    childMembers = annotationProcessor.getOrderedProcessedFields(childDtoClass);
+                    childMembers = annotationProcessor.getOrderedProcessedFields(childDtoClass, activeGroups);
                 } else {
                     nestedListField = null;
                 }
             }
 
-            // --- Final-by-effectively-final copies for use in lambda ---
             final List<ExportableAnnotationProcessor.ProcessedColumn> finalParentMembers = parentMembers;
             final Field finalNestedListField = nestedListField;
             final List<ExportableAnnotationProcessor.ProcessedColumn> finalChildMembers = childMembers;
 
-            // Build the master header list
             List<String> masterHeaderList = new ArrayList<>();
             Set<String> headersAdded = new HashSet<>();
             finalParentMembers.forEach(pc -> {
@@ -66,7 +73,6 @@ public class CsvGenerator {
                 if (headersAdded.add(pc.headerName)) masterHeaderList.add(pc.headerName);
             });
 
-            // Build maps for quick lookup
             Map<String, ExportableAnnotationProcessor.ProcessedColumn> parentFieldMap = finalParentMembers.stream()
                     .collect(Collectors.toMap(pc -> pc.headerName, pc -> pc, (o1, o2) -> o1));
             Map<String, ExportableAnnotationProcessor.ProcessedColumn> childFieldMap = finalChildMembers.stream()
@@ -74,49 +80,49 @@ public class CsvGenerator {
 
             return outputStream -> {
                 int rowNum = 0;
-                try (
-                        Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
-                        CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
-                                .withHeader(masterHeaderList.toArray(new String[0])))
-                ) {
+                try (Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
 
-                    for (Object parentDto : data) {
-                        if (rowNum++ >= MAX_ROWS) break;
+                    writer.write('\ufeff');
 
-                        // --- Print Parent Row ---
-                        List<Object> parentRecord = new ArrayList<>();
-                        for (String header : masterHeaderList) {
-                            ExportableAnnotationProcessor.ProcessedColumn pc = parentFieldMap.get(header);
-                            Object value = (pc != null) ? pc.getValue(parentDto) : null;
-                            parentRecord.add(value);
-                        }
-                        csvPrinter.printRecord(parentRecord);
+                    try (CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
+                            .withHeader(masterHeaderList.toArray(new String[0])))) {
 
-                        // --- Print Child Rows (if any) ---
-                        if (finalNestedListField != null && !finalChildMembers.isEmpty()) {
-                            List<?> children = (List<?>) finalNestedListField.get(parentDto);
-                            if (children != null && !children.isEmpty()) {
-                                for (Object childDto : children) {
-                                    if (rowNum++ >= MAX_ROWS) break;
+                        for (Object parentDto : data) {
+                            if (rowNum++ >= MAX_ROWS) break;
 
-                                    List<Object> childRecord = new ArrayList<>();
-                                    for (int colNum = 0; colNum < masterHeaderList.size(); colNum++) {
-                                        String header = masterHeaderList.get(colNum);
-                                        ExportableAnnotationProcessor.ProcessedColumn pc = childFieldMap.get(header);
-                                        Object value = (pc != null) ? pc.getValue(childDto) : null;
+                            List<Object> parentRecord = new ArrayList<>();
+                            for (String header : masterHeaderList) {
+                                ExportableAnnotationProcessor.ProcessedColumn pc = parentFieldMap.get(header);
+                                Object value = (pc != null) ? pc.getValue(parentDto) : null;
+                                parentRecord.add(value);
+                            }
+                            csvPrinter.printRecord(parentRecord);
 
-                                        if (colNum == 0 && value != null) {
-                                            childRecord.add(CHILD_INDENT_PREFIX + value);
-                                        } else {
-                                            childRecord.add(value);
+                            if (finalNestedListField != null && !finalChildMembers.isEmpty()) {
+                                List<?> children = (List<?>) finalNestedListField.get(parentDto);
+                                if (children != null && !children.isEmpty()) {
+                                    for (Object childDto : children) {
+                                        if (rowNum++ >= MAX_ROWS) break;
+
+                                        List<Object> childRecord = new ArrayList<>();
+                                        for (int colNum = 0; colNum < masterHeaderList.size(); colNum++) {
+                                            String header = masterHeaderList.get(colNum);
+                                            ExportableAnnotationProcessor.ProcessedColumn pc = childFieldMap.get(header);
+                                            Object value = (pc != null) ? pc.getValue(childDto) : null;
+
+                                            if (colNum == 0 && value != null) {
+                                                childRecord.add(CHILD_INDENT_PREFIX + value);
+                                            } else {
+                                                childRecord.add(value);
+                                            }
                                         }
+                                        csvPrinter.printRecord(childRecord);
                                     }
-                                    csvPrinter.printRecord(childRecord);
                                 }
                             }
                         }
-                    } // end parent loop
-                    csvPrinter.flush();
+                        csvPrinter.flush();
+                    }
                 } catch (Exception e) {
                     System.err.println("Error writing CSV stream: " + e.getMessage());
                     throw new RuntimeException("Error writing CSV stream", e);

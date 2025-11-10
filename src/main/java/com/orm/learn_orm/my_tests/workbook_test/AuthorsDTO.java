@@ -2,6 +2,8 @@ package com.orm.learn_orm.my_tests.workbook_test;
 
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportColumn;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportNested;
+import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.PartialExport;
+import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.PerfectExport;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,11 +24,15 @@ public class AuthorsDTO implements IExportable {
     private String bornIn;
     @ExportNested
     private List<BooksDTO> books;
+    @ExportColumn(name = "Born In", order = 4, groups = {PartialExport.class})
     private String internalNotes;
+    @ExportColumn(name = "Born In", order = 5, groups = {PartialExport.class})
     private int testRuns;
+    @ExportColumn(name = "Born In", order = 6, groups = {PerfectExport.class})
     private int oneDayRuns;
+    @ExportColumn(name = "Born In", order = 7, groups = {PerfectExport.class})
     private int firstClassRuns;
-    @ExportColumn(name="Total Runs", order = 4)
+    @ExportColumn(name="Total Runs", order = 8)
     private int totalRuns() {
         return this.oneDayRuns + this.testRuns + this.firstClassRuns;
     }
