@@ -1,9 +1,8 @@
 package com.orm.learn_orm.my_tests.workbook_test.generator;
 
 
-import com.orm.learn_orm.my_tests.workbook_test.GenericExportRequest;
-import com.orm.learn_orm.my_tests.workbook_test.IExportable;
-import com.orm.learn_orm.my_tests.workbook_test.ReportGroupResolver;
+import com.orm.learn_orm.my_tests.workbook_test.dto.ExportRequest;
+import com.orm.learn_orm.my_tests.workbook_test.dto.IExportable;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportNested;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportableAnnotationProcessor;
 import lombok.AllArgsConstructor;
@@ -37,11 +36,11 @@ public class WorkBookGenerator {
     /**
      * MODIFIED: Added activeGroups parameter
      */
-    public Workbook createWorkbook(GenericExportRequest exportRequest) {
+    public Workbook createWorkbook(ExportRequest<?> exportRequest) {
         List<?> data = exportRequest.getExportableData();
         String sheetName = exportRequest.getSheetName();
-        Class<?>[] activeGroups = new Class[]{reportGroupResolver.resolve(exportRequest.getActiveGroup())};
-
+        Class<?> group = reportGroupResolver.resolve(exportRequest.getExportFor());
+        Class<?>[] activeGroups = new Class[]{group};
 
         Workbook workbook = new SXSSFWorkbook(SXSSF_WINDOW_SIZE);
         SXSSFSheet sheet = (SXSSFSheet) workbook.createSheet(sheetName);

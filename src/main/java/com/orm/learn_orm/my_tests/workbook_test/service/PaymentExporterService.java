@@ -1,6 +1,8 @@
-package com.orm.learn_orm.my_tests.workbook_test;
+package com.orm.learn_orm.my_tests.workbook_test.service;
 
 
+import com.orm.learn_orm.my_tests.workbook_test.dto.ExportRequest;
+import com.orm.learn_orm.my_tests.workbook_test.dto.IExportable;
 import com.orm.learn_orm.my_tests.workbook_test.generator.CsvGenerator;
 import com.orm.learn_orm.my_tests.workbook_test.generator.WorkBookGenerator;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ public class PaymentExporterService {
     private final WorkBookGenerator workBookGenerator;
     private final CsvGenerator csvGenerator;
 
-    public StreamingResponseBody generateWorkBook(GenericExportRequest exportRequest) {
+    public StreamingResponseBody generateWorkBook(ExportRequest<?> exportRequest) {
         Workbook workbook = null;
         try {
             workbook = workBookGenerator.createWorkbook(exportRequest);
@@ -34,7 +36,7 @@ public class PaymentExporterService {
         }
     }
 
-    public StreamingResponseBody generateCSV(GenericExportRequest exportRequest) {
+    public StreamingResponseBody generateCSV(ExportRequest<?> exportRequest) {
         try {
             StreamingResponseBody stream = csvGenerator.createCsvStream(exportRequest);
             log.info(CSV_GENERATION_SUCCESSFUL_LOG);

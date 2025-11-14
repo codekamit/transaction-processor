@@ -3,22 +3,36 @@ package com.orm.learn_orm.controller;
 import com.orm.learn_orm.dto.ClientPrefKey;
 import com.orm.learn_orm.dto.ClientPreferenceDTO;
 import com.orm.learn_orm.enums.Currency;
+import com.orm.learn_orm.enums.SettlementLevel;
+import com.orm.learn_orm.enums.Status;
+import com.orm.learn_orm.model.ClientPreference;
+import com.orm.learn_orm.repo.IClientPreferenceRepo;
 import com.orm.learn_orm.service.ClientPreferenceService;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
+@Log4j2
 @AllArgsConstructor
 @RequestMapping("/api/client-preference")
 @RestController
 public class ClientPreferenceController {
 
     private final ClientPreferenceService service;
+    private final IClientPreferenceRepo clientPreferenceRepo;
 
     /**
      * CREATE a new client preference.
@@ -88,5 +102,11 @@ public class ClientPreferenceController {
     public ResponseEntity<Void> deletePreference(@PathVariable UUID id) {
         service.deletePreference(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("hit-go")
+    public ResponseEntity<String> hitGo() throws Throwable {
+        service.hitGo();
+        return ResponseEntity.ok("Finished");
     }
 }

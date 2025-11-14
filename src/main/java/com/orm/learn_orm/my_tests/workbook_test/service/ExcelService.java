@@ -1,20 +1,20 @@
-package com.orm.learn_orm.my_tests.workbook_test;
+package com.orm.learn_orm.my_tests.workbook_test.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orm.learn_orm.my_tests.workbook_test.dto.AuthorsDTO;
+import com.orm.learn_orm.my_tests.workbook_test.dto.BooksDTO;
+import com.orm.learn_orm.my_tests.workbook_test.dto.ExportRequest;
+import com.orm.learn_orm.my_tests.workbook_test.enums.ExportFor;
+import com.orm.learn_orm.my_tests.workbook_test.enums.SettlementType;
 import com.orm.learn_orm.my_tests.workbook_test.generator.CsvGenerator;
 import com.orm.learn_orm.my_tests.workbook_test.generator.WorkBookGenerator;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
-import reactor.core.publisher.Flux;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -145,10 +145,12 @@ public class ExcelService {
     public Workbook getExcelWorkbook() {
         List<AuthorsDTO> authors = dummyData();
         System.out.println("Generating workbook from annotations...");
-        GenericExportRequest exportRequest = new GenericExportRequest(Collections.singletonList(authors),
-                "Author",
-                "Authors Report",
-                "Partial");
+        ExportRequest<AuthorsDTO> exportRequest = ExportRequest.<AuthorsDTO>builder()
+                .exportableData(authors)
+                .fileName("Author Report")
+                .sheetName("Authors")
+                .exportFor(ExportFor.PERFECT)
+                .build();
         Workbook workbook = workBookGenerator.createWorkbook(exportRequest);
         System.out.println("Workbook created, returning to controller...");
         return workbook;
@@ -157,45 +159,14 @@ public class ExcelService {
     public StreamingResponseBody getCSV() {
         List<AuthorsDTO> authors = dummyData();
         System.out.println("Generating workbook from annotations...");
-        GenericExportRequest exportRequest = new GenericExportRequest(Collections.singletonList(authors),
-                "Author",
-                "Authors Report",
-                "Partial");
+        ExportRequest<AuthorsDTO> exportRequest = ExportRequest.<AuthorsDTO>builder()
+                .exportableData(authors)
+                .fileName("Author Report")
+                .sheetName("Authors")
+                .exportFor(ExportFor.PERFECT)
+                .build();
         StreamingResponseBody result = csvGenerator.createCsvStream(exportRequest);
         System.out.println("Workbook created, returning to controller...");
         return result;
-    }
-
-    public void callApi() {
-        log.info("Starting report download...");
-
-        // 1. Create your test data
-        List<AuthorsDTO> authors = dummyData();
-
-        // 2. Build the request object
-        //    (Using the <AuthorsDTO> type hint for the builder)
-        GenericExportRequest requestBody = GenericExportRequest.builder()
-                .exportableData(Collections.singletonList(authors))
-                .sheetName("Author")
-                .fileName("Author Report")
-                .activeGroup("Partial")
-                .build();
-
-        Path outputPath = Paths.get("C:\\Users\\proxy_lbbx2v4\\Downloads\\Test\\my_downloaded_author_report.xlsx");
-
-        // 4. Make the WebClient call
-        Flux<DataBuffer> fileStream = localApiClient.post()
-                .uri("/api/workbook") // <-- Calling the SPECIFIC endpoint
-                .accept(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToFlux(DataBuffer.class);
-
-        // 5. Stream the response directly to a file
-        DataBufferUtils.write(fileStream, outputPath)
-                .doOnSuccess(v -> log.info("File downloaded successfully to: " + outputPath.toAbsolutePath()))
-                .doOnError(e -> log.error("Error downloading file: ", e))
-                .block(); // Using .block() for simplicity in this example
     }
 }

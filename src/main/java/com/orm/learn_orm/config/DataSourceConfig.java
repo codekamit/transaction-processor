@@ -88,7 +88,7 @@ public class DataSourceConfig {
         properties.setProperty("hibernate.jdbc.batch_size", "5000");
         properties.setProperty("hibernate.order_inserts", "true");
         properties.setProperty("hibernate.order_updates", "true");
-        properties.setProperty("hibernate.generate_statistics", "true");
+//        properties.setProperty("hibernate.generate_statistics", "true");
         properties.setProperty("hibernate.id.new_generator_mappings", "true");
         properties.setProperty("hibernate.jdbc.use_get_generated_keys", "true");
 

@@ -1,8 +1,7 @@
 package com.orm.learn_orm.my_tests.workbook_test.generator;
 
-import com.orm.learn_orm.my_tests.workbook_test.GenericExportRequest;
-import com.orm.learn_orm.my_tests.workbook_test.IExportable;
-import com.orm.learn_orm.my_tests.workbook_test.ReportGroupResolver;
+import com.orm.learn_orm.my_tests.workbook_test.dto.ExportRequest;
+import com.orm.learn_orm.my_tests.workbook_test.dto.IExportable;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportNested;
 import com.orm.learn_orm.my_tests.workbook_test.custom_annotation.ExportableAnnotationProcessor;
 import lombok.AllArgsConstructor;
@@ -34,9 +33,10 @@ public class CsvGenerator {
     private final ExportableAnnotationProcessor annotationProcessor;
     private final ReportGroupResolver reportGroupResolver;
 
-    public StreamingResponseBody createCsvStream(GenericExportRequest exportRequest) {
+    public StreamingResponseBody createCsvStream(ExportRequest<?> exportRequest) {
         List<?> data = exportRequest.getExportableData();
-        Class<?>[] activeGroups = new Class[]{reportGroupResolver.resolve(exportRequest.getActiveGroup())};
+        Class<?> group = reportGroupResolver.resolve(exportRequest.getExportFor());
+        Class<?>[] activeGroups = new Class[]{group};
 
         if (data == null || data.isEmpty()) {
             return outputStream -> {

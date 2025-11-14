@@ -1,4 +1,4 @@
-package com.orm.learn_orm.my_tests.workbook_test;
+package com.orm.learn_orm.my_tests.workbook_test.dto;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;

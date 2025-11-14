@@ -25,6 +25,9 @@ import java.util.UUID;
         @UniqueConstraint(name = "uc_client_currency", columnNames = {"client_name", "currency"})})
 public class ClientPreference {
 
+    @Version
+    private Long version;
+
     @Id
     @GeneratedValue(generator = "uuidv7-generator")
     @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
@@ -48,6 +51,7 @@ public class ClientPreference {
     @OneToMany(mappedBy = "clientPreference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FundGroup> fundMapping;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
 

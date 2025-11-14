@@ -1,4 +1,4 @@
-package com.orm.learn_orm.my_tests.workbook_test;
+package com.orm.learn_orm.my_tests.workbook_test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

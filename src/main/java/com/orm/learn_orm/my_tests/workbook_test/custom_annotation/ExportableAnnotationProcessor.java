@@ -111,7 +111,7 @@ public class ExportableAnnotationProcessor {
                 if (field.isAnnotationPresent(ExportColumn.class)) {
                     ExportColumn annotation = field.getAnnotation(ExportColumn.class);
 
-                    if (!shouldInclude(annotation.groups(), activeGroupSet)) {
+                    if (shouldInclude(annotation.groups(), activeGroupSet)) {
                         continue;
                     }
 
@@ -126,7 +126,6 @@ public class ExportableAnnotationProcessor {
                 }
             }
 
-            // --- 2. METHOD PROCESSING ---
             for (Method method : c.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExportColumn.class)) {
 
@@ -143,7 +142,7 @@ public class ExportableAnnotationProcessor {
 
                     ExportColumn annotation = method.getAnnotation(ExportColumn.class);
 
-                    if (!shouldInclude(annotation.groups(), activeGroupSet)) {
+                    if (shouldInclude(annotation.groups(), activeGroupSet)) {
                         continue;
                     }
 
@@ -164,24 +163,25 @@ public class ExportableAnnotationProcessor {
     }
 
     /**
-     * Core logic to determine if a member should be included based on group overlap.
+     * Core logic to determine if a member should be included.
+     * NEW, FIXED LOGIC
      */
     private boolean shouldInclude(Class<?>[] fieldGroups, Set<Class<?>> activeGroups) {
-
-        if (activeGroups.isEmpty()) {
-            return fieldGroups.length == 0;
-        }
-
         if (fieldGroups.length == 0) {
             return false;
         }
 
+        if (activeGroups.isEmpty()) {
+            return true;
+        }
+
         for (Class<?> fieldGroup : fieldGroups) {
             if (activeGroups.contains(fieldGroup)) {
-                return true;
+                return false;
             }
         }
-        return false;
+
+        return true;
     }
 
     public Field getFieldByAnnotation(Class<?> clazz, Class<? extends java.lang.annotation.Annotation> annotationClass) {
