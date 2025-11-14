@@ -7,6 +7,7 @@ CREATE TABLE orm.client_preference (
     currency VARCHAR(255) NOT NULL,
     netting BOOLEAN NOT NULL,
     status VARCHAR(255) NOT NULL,
+    version BIGINT DEFAULT 0 NOT NULL,
     CONSTRAINT pk_client_preference PRIMARY KEY (id),
     CONSTRAINT uc_client_currency UNIQUE (client_name, currency)
 );

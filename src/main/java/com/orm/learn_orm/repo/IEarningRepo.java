@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface IEarningRepo extends JpaRepository<Earning, Long> {
+public interface IEarningRepo extends JpaRepository<Earning, String> {
 
     @Query("SELECT DISTINCT e FROM Earning e JOIN FETCH e.settlementUpload WHERE e.settlementUpload = :settlementUpload")
     List<Earning> findAllEarningsWithSettlementUpload(SettlementUpload settlementUpload);

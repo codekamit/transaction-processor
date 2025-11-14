@@ -22,7 +22,7 @@ public class ClientPrefProcessingDTO {
     private Currency currency;
     private boolean netting;
     private String paymentFund;
-    private Map<String,String> fundMapping;
+    private Map<String, String> fundMapping;
     private Status status;
 
     public ClientPrefKey getKey() {

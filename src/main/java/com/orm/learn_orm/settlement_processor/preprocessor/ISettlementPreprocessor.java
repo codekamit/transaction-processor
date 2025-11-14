@@ -9,5 +9,5 @@ import java.io.IOException;
 @Service
 public interface ISettlementPreprocessor {
 
-    void preprocess(MultipartFile file, AgencyFactory<?,?> agencyFactory) throws IOException;
+    void preprocess(MultipartFile file, AgencyFactory<?,?,?,?> agencyFactory) throws IOException;
 }

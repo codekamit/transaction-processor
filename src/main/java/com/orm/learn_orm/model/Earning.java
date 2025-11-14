@@ -19,25 +19,23 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="earning", schema="orm")
+@Table(name = "earning", schema = "orm")
 public class Earning implements ISettlement {
 
     @Id
-    @GeneratedValue(generator = "uuidv7-generator")
-    @GenericGenerator(name = "uuidv7-generator", type = UuidV7Generator.class)
-    @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "id", updatable = false, nullable = false, length = 16)
+    private String id;
     @Enumerated(EnumType.STRING)
-    @Column(name="currency", nullable = false)
+    @Column(name = "currency", nullable = false)
     private Currency currency;
-    @Column(name="client_name", nullable = false)
+    @Column(name = "client_name", nullable = false)
     private String clientName;
-    @Column(name="fund", nullable = false)
+    @Column(name = "fund", nullable = false)
     private String fund;
     @Enumerated(EnumType.STRING)
-    @Column(name="state")
+    @Column(name = "state")
     private State state;
-    @Column(name="amount", nullable = false)
+    @Column(name = "amount", nullable = false)
     private Double amount;
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "settlement_id")

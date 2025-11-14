@@ -17,7 +17,7 @@ public class AuthorController {
     private final AuthorService authorService;
 
     @GetMapping("get")
-    public ResponseEntity<AuthorDTO> getAuthorById(@RequestParam(value="id", required=true) long id) {
+    public ResponseEntity<AuthorDTO> getAuthorById(@RequestParam(value = "id", required = true) long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 

@@ -16,12 +16,4 @@
         <sqlFile path="../sql/REF_002.sql" relativeToChangelogFile="true" />
     </changeSet>
 
-    <changeSet id="sequence_004" author="Amit Kumar">
-        <sqlFile path="../sql/REF_003.sql" relativeToChangelogFile="true" />
-    </changeSet>
-
-    <changeSet id="sequence_005" author="Amit Kumar">
-        <sqlFile path="../sql/REF_004.sql" relativeToChangelogFile="true" />
-    </changeSet>
-
 </databaseChangeLog>

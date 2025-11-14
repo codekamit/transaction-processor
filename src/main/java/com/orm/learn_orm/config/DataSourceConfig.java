@@ -67,7 +67,7 @@ public class DataSourceConfig {
                 .build();
     }
 
-    @Bean(name="ormEntityManagerFactory")
+    @Bean(name = "ormEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource);
@@ -88,7 +88,7 @@ public class DataSourceConfig {
         properties.setProperty("hibernate.jdbc.batch_size", "5000");
         properties.setProperty("hibernate.order_inserts", "true");
         properties.setProperty("hibernate.order_updates", "true");
-        properties.setProperty("hibernate.generate_statistics", "true");
+//        properties.setProperty("hibernate.generate_statistics", "true");
         properties.setProperty("hibernate.id.new_generator_mappings", "true");
         properties.setProperty("hibernate.jdbc.use_get_generated_keys", "true");
 
@@ -96,7 +96,7 @@ public class DataSourceConfig {
         return emf;
     }
 
-    @Bean(name="ormTransactionManager")
+    @Bean(name = "ormTransactionManager")
     public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
         return new JpaTransactionManager(emf);
     }
@@ -106,3 +106,4 @@ public class DataSourceConfig {
         return new NamedParameterJdbcTemplate(dataSource);
     }
 }
+

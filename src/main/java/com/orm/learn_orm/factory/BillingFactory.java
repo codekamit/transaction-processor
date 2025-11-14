@@ -1,9 +1,12 @@
 package com.orm.learn_orm.factory;
 
 import com.orm.learn_orm.dto.BillingDTO;
+import com.orm.learn_orm.dto.BillingProcessDTO;
 import com.orm.learn_orm.file_management.header.BillingFileHeader;
 import com.orm.learn_orm.file_management.parser.BillingFileParser;
+import com.orm.learn_orm.marker_interface.ISettlementProcessDTO;
 import com.orm.learn_orm.model.Billing;
+import com.orm.learn_orm.model.NetBilling;
 import com.orm.learn_orm.service.BillingSettlementService;
 import com.orm.learn_orm.settlement_processor.preprocessor.BillingSettlementPreprocessor;
 import com.orm.learn_orm.settlement_processor.processor.BillingProcessor;
@@ -12,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class BillingFactory implements AgencyFactory<BillingDTO, Billing> {
+public class BillingFactory implements AgencyFactory<BillingDTO, Billing, BillingProcessDTO, NetBilling> {
 
     private final BillingFileParser fileParser;
     private final BillingFileHeader header;
@@ -44,5 +47,10 @@ public class BillingFactory implements AgencyFactory<BillingDTO, Billing> {
     @Override
     public BillingSettlementService getSettlementService() {
         return this.billingSettlementService;
+    }
+
+    @Override
+    public ISettlementProcessDTO getSettlementProcessDTO() {
+        return new BillingProcessDTO();
     }
 }

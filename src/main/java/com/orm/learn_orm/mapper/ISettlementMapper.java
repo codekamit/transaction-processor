@@ -18,10 +18,12 @@ public interface ISettlementMapper {
     ISettlementMapper INSTANCE = Mappers.getMapper(ISettlementMapper.class);
 
     EarningDTO getEarningDTO(Earning earning);
+
     @Mapping(target = "state", constant = "PENDING")
     Earning getEarning(EarningDTO earningDTO);
 
     BillingDTO getBillingDTO(Billing billing);
+
     Billing getBilling(BillingDTO billingDTO);
 
 

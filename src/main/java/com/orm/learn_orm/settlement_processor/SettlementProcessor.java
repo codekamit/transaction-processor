@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -19,19 +18,19 @@ public class SettlementProcessor {
     private final AgencyAbstractFactory agencyAbstractFactory;
 
     public void processSettlement(MultipartFile file, SettlementType type) throws IOException {
-        AgencyFactory<?,?> agencyFactory = agencyAbstractFactory.getFactory(type);
+        AgencyFactory<?,?,?,?> agencyFactory = agencyAbstractFactory.getFactory(type);
         ISettlementPreprocessor preprocessor = agencyFactory.getPreprocessor();
         preprocessor.preprocess(file, agencyFactory);
     }
 
-    public void suspendNettedSettlement(UUID id, SettlementType settlementType) {
-        AgencyFactory<?,?> agencyFactory = agencyAbstractFactory.getFactory(settlementType);
+    public void suspendNettedSettlement(String id, SettlementType settlementType) {
+        AgencyFactory<?,?,?,?> agencyFactory = agencyAbstractFactory.getFactory(settlementType);
         ISettlementService settlementService = agencyFactory.getSettlementService();
         settlementService.suspendNettedSettlement(id);
     }
 
     public void reprocessDefaultPreference(SettlementType settlementType) {
-        AgencyFactory<?,?> agencyFactory = agencyAbstractFactory.getFactory(settlementType);
+        AgencyFactory<?,?,?,?> agencyFactory = agencyAbstractFactory.getFactory(settlementType);
         ISettlementService settlementService = agencyFactory.getSettlementService();
         settlementService.reprocessDefaultPreference();
     }

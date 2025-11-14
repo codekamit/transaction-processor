@@ -7,20 +7,18 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.hibernate.engine.jdbc.batch.internal.BatchingBatch" level="info" additivity="false">
+<!--        <Logger name="org.hibernate.engine.jdbc.batch.internal.BatchingBatch" level="info" additivity="false">-->
+<!--            <AppenderRef ref="Console"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="logging.level.org.hibernate.SQL" level="info" additivity="false">-->
+<!--            <AppenderRef ref="Console"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="logging.level.org.springframework.jdbc.core" level="info" additivity="false">-->
+<!--            <AppenderRef ref="Console"/>-->
+<!--        </Logger>-->
+        <Logger name="com.orm.learn_orm" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
-        <Logger name="logging.level.org.hibernate.SQL" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
-        <Logger name="logging.level.org.springframework.jdbc.core" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
-
-        <Logger name="com.orm.learn_orm" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
-
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

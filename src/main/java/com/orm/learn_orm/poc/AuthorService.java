@@ -13,30 +13,30 @@ public class AuthorService {
     private static final IAuthorMapper AUTHOR_MAPPER = IAuthorMapper.INSTANCE;
     private final IAuthorRepo authorRepo;
 
-    @Transactional(transactionManager="ormTransactionManager", readOnly = true)
-    public AuthorDTO getAuthorById(Long id){
-        Author author = authorRepo.findById(id).orElseThrow(()-> new RuntimeException("Author not found with id: " + id));
+    @Transactional(transactionManager = "ormTransactionManager", readOnly = true)
+    public AuthorDTO getAuthorById(Long id) {
+        Author author = authorRepo.findById(id).orElseThrow(() -> new RuntimeException("Author not found with id: " + id));
         return AUTHOR_MAPPER.getAuthorDTO(author);
     }
 
-    @Transactional(transactionManager="ormTransactionManager", readOnly = true)
-    public List<AuthorDTO> getAuthors(){
+    @Transactional(transactionManager = "ormTransactionManager", readOnly = true)
+    public List<AuthorDTO> getAuthors() {
         List<Author> authors = authorRepo.findAll();
         return authors.stream()
                 .map(AUTHOR_MAPPER::getAuthorDTO)
                 .toList();
     }
 
-    @Transactional(transactionManager="ormTransactionManager", readOnly = true)
-    public List<AuthorDTO> getAuthorsWithoutNPlus1(){
+    @Transactional(transactionManager = "ormTransactionManager", readOnly = true)
+    public List<AuthorDTO> getAuthorsWithoutNPlus1() {
         List<Author> authors = authorRepo.findAllAuthorsWithBooksJoined();
         return authors.stream()
                 .map(AUTHOR_MAPPER::getAuthorDTO)
                 .toList();
     }
 
-    @Transactional(transactionManager="ormTransactionManager")
-    public void addAuthor(AuthorDTO dto){
+    @Transactional(transactionManager = "ormTransactionManager")
+    public void addAuthor(AuthorDTO dto) {
         Author author = AUTHOR_MAPPER.getAuthor(dto);
         List<Book> books = dto.getBooks().stream()
                 .map(AUTHOR_MAPPER::getBook)
@@ -46,8 +46,8 @@ public class AuthorService {
         authorRepo.save(author);
     }
 
-    @Transactional(transactionManager="ormTransactionManager")
-    public void addAuthors(List<AuthorDTO> dtos){
+    @Transactional(transactionManager = "ormTransactionManager")
+    public void addAuthors(List<AuthorDTO> dtos) {
         List<Author> authors = dtos.stream()
                 .map(dto -> {
                     Author author = AUTHOR_MAPPER.getAuthor(dto);

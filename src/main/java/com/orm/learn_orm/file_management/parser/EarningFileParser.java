@@ -33,30 +33,29 @@ public class EarningFileParser implements IFileParser<EarningDTO> {
         List<List<String>> earningData = null;
         List<EarningDTO> earningDTOs = new ArrayList<>();
         List<Map<String, String>> errorDetails = new ArrayList<>();
-        if(!StringUtils.isBlank(extension)) {
-            if(extension.endsWith(".xlsx")) {
+        if (!StringUtils.isBlank(extension)) {
+            if (extension.endsWith(".xlsx")) {
                 earningData = excelFileProcessor.processFile(file, earningFileHeaders);
             } else if (extension.endsWith(".csv")) {
                 earningData = csvFileProcessor.processFile(file, earningFileHeaders);
-            }
-            else {
+            } else {
                 throw new IllegalArgumentException("Unsupported file type: " + extension);
             }
         }
 
-        if(earningData == null) {
+        if (earningData == null) {
             throw new IllegalArgumentException("File is empty or could not be processed.");
         }
 
         earningFileHeaders.allHeadersPresent(earningData.get(earningFileHeaders.headerStartRow()), earningFileHeaders);
         Map<String, Integer> headerMap = earningFileHeaders.getHeaderIndices(earningData.get(0));
         int idx = earningFileHeaders.headerStartRow() + 1;
-        while(idx < earningData.size()) {
+        while (idx < earningData.size()) {
             EarningDTO earningDTO = new EarningDTO();
             List<String> row = earningData.get(idx++);
-            if(earningFileHeaders.hasReachedFooter(row, earningFileHeaders))
+            if (earningFileHeaders.hasReachedFooter(row, earningFileHeaders))
                 break;
-            if(earningFileHeaders.isRowEmpty(row))
+            if (earningFileHeaders.isRowEmpty(row))
                 break;
 
             Map<String, String> errorMap = new HashMap<>();
@@ -66,16 +65,16 @@ public class EarningFileParser implements IFileParser<EarningDTO> {
             processField(row, headerMap, earningFileHeaders.FUND(), errorMap, earningDTO::setFund);
             processNumericField(row, headerMap, earningFileHeaders.AMOUNT(), errorMap, earningDTO::setAmount);
 
-            if(earningDTO.isValid(errorMap)) {
+            if (earningDTO.isValid(errorMap)) {
                 earningDTOs.add(earningDTO);
             }
 
-            if(!errorMap.isEmpty()) {
+            if (!errorMap.isEmpty()) {
                 errorDetails.add(errorMap);
             }
         }
 
-        if(!errorDetails.isEmpty()) {
+        if (!errorDetails.isEmpty()) {
             throw new ParsingException("Errors found during parsing.", errorDetails);
         }
         return earningDTOs;

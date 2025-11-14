@@ -21,9 +21,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="client_preference", schema="orm", uniqueConstraints = {
-@UniqueConstraint(name = "uc_client_currency", columnNames = {"client_name", "currency"})})
+@Table(name = "client_preference", schema = "orm", uniqueConstraints = {
+        @UniqueConstraint(name = "uc_client_currency", columnNames = {"client_name", "currency"})})
 public class ClientPreference {
+
+    @Version
+    private Long version;
 
     @Id
     @GeneratedValue(generator = "uuidv7-generator")
@@ -31,25 +34,32 @@ public class ClientPreference {
     @Column(name = "id", columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    @Column(name="client_name", nullable = false)
+    @Column(name = "client_name", nullable = false)
     private String clientName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="settlement_level", nullable = false)
+    @Column(name = "settlement_level", nullable = false)
     private SettlementLevel settlementLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="currency", nullable = false)
+    @Column(name = "currency", nullable = false)
     private Currency currency;
 
-    @Column(name="netting", nullable = false)
+    @Column(name = "netting", nullable = false)
     private boolean netting;
 
     @OneToMany(mappedBy = "clientPreference", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FundGroup> fundMapping;
 
-    @Column(name="status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private Status status;
+
+    public static List<String> getFormattedKeys(List<ClientPrefKey> keys) {
+        return keys.stream()
+                .map(key -> String.format("%s:%s", key.clientName().toUpperCase(), key.currency().name()))
+                .toList();
+    }
 
     @PrePersist
     @PreUpdate
@@ -67,11 +77,5 @@ public class ClientPreference {
 
     public ClientPrefKey getKey() {
         return new ClientPrefKey(this.clientName, this.currency);
-    }
-
-    public static List<String> getFormattedKeys(List <ClientPrefKey> keys) {
-        return keys.stream()
-                .map(key -> String.format("%s:%s", key.clientName().toUpperCase(), key.currency().name()))
-                .toList();
     }
 }

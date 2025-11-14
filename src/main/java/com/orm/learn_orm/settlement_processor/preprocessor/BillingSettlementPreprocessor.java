@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BillingSettlementPreprocessor implements ISettlementPreprocessor {
 
     @Override
-    public void preprocess(MultipartFile file, AgencyFactory<?,?> agencyFactory) {
+    public void preprocess(MultipartFile file, AgencyFactory<?,?,?,?> agencyFactory) {
 
     }
 }

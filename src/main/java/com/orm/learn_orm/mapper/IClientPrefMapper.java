@@ -61,13 +61,13 @@ public interface IClientPrefMapper {
 
     default ClientPrefProcessingDTO mapClientPrefProcessingDTO(ClientPreference clientPreference) {
         ClientPrefProcessingDTO clientPrefProcessingDTO = new ClientPrefProcessingDTO();
-        if(SettlementLevel.CLIENT == clientPreference.getSettlementLevel()) {
+        if (SettlementLevel.CLIENT == clientPreference.getSettlementLevel()) {
             String paymentFund = clientPreference.getFundMapping()
                     .get(0)
                     .getPaymentFund();
             clientPrefProcessingDTO.setPaymentFund(paymentFund);
             clientPrefProcessingDTO.setFundMapping(null);
-        } else if(SettlementLevel.PAYMENT_FUND == clientPreference.getSettlementLevel()) {
+        } else if (SettlementLevel.PAYMENT_FUND == clientPreference.getSettlementLevel()) {
             Map<String, String> mapping = clientPreference.getFundMapping().stream()
                     .collect(Collectors.toMap(
                             FundGroup::getFund,
